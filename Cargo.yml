@@ -1,0 +1,71 @@
+package:
+
+  # When releasing to crates.io:
+  #
+  # - last check for all TODO, FIXME, expect, unwrap.
+  # - re-read and final polish of documentation
+  # - run cargo udeps
+  # - run cargo clippy
+  # - recheck log statements (informative, none left that were just for development, ...)
+  # - Update CHANGELOG.md.
+  # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
+  # - verify CI result
+  # - run cargo test on dependent crates
+  # - cargo publish
+  # - merge dev branch into master
+  # - create git tag with version number
+  #
+  version       : 0.1.0
+  name          : async_nursery
+  authors       : [ Naja Melan <najamelan@autistici.org> ]
+  description   : UPDATE ME
+  documentation : https://docs.rs/async_nursery
+  repository    : https://github.com/najamelan/async_nursery
+  readme        : README.md
+  keywords      : []
+  categories    : []
+  license       : Unlicense
+  edition       : "2018"
+  exclude       : [ benches, examples, tests ]
+
+  metadata:
+    docs:
+      rs:
+        all-features: true
+        targets     : []
+
+
+badges:
+
+  maintenance : { status     : actively-developed       }
+  travis-ci   : { repository : najamelan/async_nursery }
+
+
+features:
+
+
+
+
+dependencies:
+
+  # Public dependencies (bump major if changing any version number here)
+  # Means we use types from these crates in our public API.
+  #
+  futures        : { version: ^0.3 }
+  async_executors: { version: ^0.2, features: [ spawn_handle ] }
+  thespis: { path: ../thespis/thespis, optional: true }
+
+  # Private dependencies
+  #
+
+
+dev-dependencies:
+
+  async_executors: { version: ^0.2, features: [ async_std, spawn_handle ] }
+  async-std : { version: ^1, features: [ attributes ] }
+  pretty_assertions   : ^0.6
+
+
+build-dependencies:
+
+  rustc_version: ^0.2

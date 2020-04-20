@@ -1,0 +1,55 @@
+# Auto-generated from "Cargo.yml"
+[badges]
+[badges.maintenance]
+status = "actively-developed"
+
+[badges.travis-ci]
+repository = "najamelan/async_nursery"
+
+[build-dependencies]
+rustc_version = "^0.2"
+
+[dependencies]
+[dependencies.async_executors]
+features = ["spawn_handle"]
+version = "^0.2"
+
+[dependencies.futures]
+version = "^0.3"
+
+[dependencies.thespis]
+optional = true
+path = "../thespis/thespis"
+
+[dev-dependencies]
+pretty_assertions = "^0.6"
+
+[dev-dependencies.async-std]
+features = ["attributes"]
+version = "^1"
+
+[dev-dependencies.async_executors]
+features = ["async_std", "spawn_handle"]
+version = "^0.2"
+
+[features]
+
+[package]
+authors = ["Naja Melan <najamelan@autistici.org>"]
+categories = []
+description = "UPDATE ME"
+documentation = "https://docs.rs/async_nursery"
+edition = "2018"
+exclude = ["benches", "examples", "tests"]
+keywords = []
+license = "Unlicense"
+name = "async_nursery"
+readme = "README.md"
+repository = "https://github.com/najamelan/async_nursery"
+version = "0.1.0"
+
+[package.metadata]
+[package.metadata.docs]
+[package.metadata.docs.rs]
+all-features = true
+targets = []
