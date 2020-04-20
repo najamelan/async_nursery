@@ -40,6 +40,17 @@ impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: SpawnHandle<Out>, Out: 'sta
 	}
 }
 
+impl<S> Spawn for Nursery<S, ()> where S: SpawnHandle<()>
+{
+	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
+	{
+		self.unordered.push( self.spawner.spawn_handle_obj( fut )? );
+
+		Ok(())
+	}
+}
+
+
 
 impl<S, Out> Stream for Nursery<S, Out>
 

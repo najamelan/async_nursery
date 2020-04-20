@@ -48,7 +48,7 @@ mod import
 	{
 		async_executors:: { SpawnHandle, JoinHandle },
 		futures :: { Stream },
-		futures :: { task::{ FutureObj, LocalFutureObj, SpawnError } },
+		futures :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn } },
 		futures :: { stream::FuturesUnordered, FutureExt },
 		std :: { task::{ Context, Poll }, pin::Pin, future::Future } ,
 	};
