@@ -54,6 +54,7 @@ dependencies:
   futures        : { version: ^0.3 }
   async_executors: { version: ^0.2, features: [ spawn_handle ] }
   thespis: { path: ../thespis/thespis, optional: true }
+  log         : ^0.4
 
   # Private dependencies
   #
@@ -64,8 +65,14 @@ dev-dependencies:
   async_executors: { version: ^0.2, features: [ async_std, spawn_handle ] }
   async-std : { version: ^1, features: [ attributes ] }
   pretty_assertions   : ^0.6
-
+  flexi_logger: ^0.15
 
 build-dependencies:
 
   rustc_version: ^0.2
+
+
+patch:
+  crates-io:
+    futures: { path: ../RUST/futures-rs/futures }
+    futures-task: { path: ../RUST/futures-rs/futures-task }

@@ -37,7 +37,7 @@ async fn produce_value2() -> usize { 10 }
 //
 async fn main() -> Result<(), DynError>
 {
-	let nursery = Nursery::new( AsyncStd );
+	let nursery = Nursery::new( AsyncStd )?;
 
 	needs_to_spawn( &nursery )?;
 

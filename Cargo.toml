@@ -10,6 +10,8 @@ repository = "najamelan/async_nursery"
 rustc_version = "^0.2"
 
 [dependencies]
+log = "^0.4"
+
 [dependencies.async_executors]
 features = ["spawn_handle"]
 version = "^0.2"
@@ -22,6 +24,7 @@ optional = true
 path = "../thespis/thespis"
 
 [dev-dependencies]
+flexi_logger = "^0.15"
 pretty_assertions = "^0.6"
 
 [dev-dependencies.async-std]
@@ -53,3 +56,11 @@ version = "0.1.0"
 [package.metadata.docs.rs]
 all-features = true
 targets = []
+
+[patch]
+[patch.crates-io]
+[patch.crates-io.futures]
+path = "../RUST/futures-rs/futures"
+
+[patch.crates-io.futures-task]
+path = "../RUST/futures-rs/futures-task"

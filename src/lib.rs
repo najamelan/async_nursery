@@ -28,6 +28,7 @@
 
 mod nurse;
 mod nursery;
+mod nursery_handle;
 
 #[ cfg( feature = "thespis" ) ] mod actor;
 #[ cfg( feature = "thespis" ) ] pub use actor::*;
@@ -36,6 +37,7 @@ pub use
 {
 	nurse::*,
 	nursery::*,
+	nursery_handle::*,
 };
 
 
@@ -46,11 +48,12 @@ mod import
 {
 	pub(crate) use
 	{
-		async_executors:: { SpawnHandle, JoinHandle },
-		futures :: { Stream },
+		async_executors:: { SpawnHandle, SpawnHandleExt, JoinHandle },
+		futures :: { Stream, StreamExt, channel::mpsc::{ UnboundedSender, unbounded } },
 		futures :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn } },
-		futures :: { stream::FuturesUnordered, FutureExt },
-		std :: { task::{ Context, Poll }, pin::Pin, future::Future } ,
+		futures :: { stream::FuturesUnordered, FutureExt, lock::Mutex, executor::block_on },
+		std :: { task::{ Context, Poll, Waker }, pin::Pin, future::Future, sync::{ Arc, atomic::{ AtomicUsize, Ordering::SeqCst } } } ,
+		log :: { * },
 	};
 
 

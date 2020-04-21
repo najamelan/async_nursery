@@ -8,7 +8,7 @@ use
 type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 
 
-// This basically guarantees that when the connection dies, and this HttpConnection
+// This basically guarantees that when the connection dies, and this Connection
 // object goes away. All the futures currently processing requests will be dropped.
 // It doesn't make sense to do work to formulate a response for a connection that
 // has died.
@@ -17,21 +17,32 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 // the futures could leave the system in an inconsistent state, you'll have to implement
 // cooperative cancelling in your tasks.
 //
-// You can then implement Future for HttpConnection, which will poll the nursery until all
+// Also you can't start inspecting the output of the tasks if you still want to spawn more.
+//
+// You can then implement Future or Stream for Connection, which will poll the nursery until all
 // subtasks have finished their cleanup.
 //
-pub struct HttpConnection
+pub struct Connection
 {
 	nursery: Box< dyn Nurse<Result<(), DynError>> + Send >
 }
 
-impl HttpConnection
+impl Connection
 {
 	pub fn process( &self ) -> Result<(), DynError>
 	{
-		loop // generally while loop over incoming messages...
+		let _disconnect = false;
+
+		while todo!() // let Some( request ) = incoming.next().await
 		{
 			self.nursery.nurse( async { /*process a request*/ Ok(()) } )?;
+
+			// now if the connection goes away and the Connection object get's
+			// dropped, the nursery will be dropped and any pending tasks spawned
+			// on it will be dropped, so we don't leak ressources and don't
+			// keep processing requests for connections that no longer exist.
+			//
+			if _disconnect { break }
 		}
 
 		Ok(())

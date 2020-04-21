@@ -2,7 +2,8 @@ use
 {
 	async_executors :: { * } ,
 	async_nursery   :: { * } ,
-	futures_util :: { StreamExt }
+	log             :: { * } ,
+	futures         :: { StreamExt }
 };
 
 type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
@@ -18,10 +19,11 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 //
 async fn spawns_inside() -> Result<usize, DynError>
 {
-	let nursery = Nursery::new( AsyncStd );
+	let nursery = Nursery::new( AsyncStd )?;
+	debug!( "nursery created" );
+	nursery.nurse( produce_value () )?; 	debug!( "spawn produce_value" );
+	nursery.nurse( produce_value2() )?;	   debug!( "spawn produce_value2" );
 
-	nursery.nurse( produce_value () )?;
-	nursery.nurse( produce_value2() )?;
 
 	// Pass the nursery down the stack. Could also be async and be awaited.
 	// In this particular case we can't nurse it, because the nursery takes
@@ -29,9 +31,14 @@ async fn spawns_inside() -> Result<usize, DynError>
 	// The most generic way of using the nursery is to return Result<(), DynError>
 	// and not use it for returning values.
 	//
-	produce_value3( &nursery )?;
+	produce_value3( &nursery )?; debug!( "call produce_value3" );
 
-	Ok( nursery.fold(0, |acc, x| async move { acc + x } ).await )
+	Ok( nursery.fold(0, |acc, x| async move
+	{
+		debug!( "fold, acc: {}", acc );
+		acc + x
+
+	} ).await )
 
 	// If we do not care about the return values, but just want to make sure
 	// everything has finished we could do something like:
@@ -54,8 +61,8 @@ async fn produce_value2() -> usize { 10 }
 
 fn produce_value3( nursery: &(impl Nurse<usize> + Send + 'static) ) -> Result<(), DynError>
 {
-	nursery.nurse( produce_value () )?;
-	nursery.nurse( produce_value2() )?;
+	nursery.nurse( produce_value () )?; debug!( "spawn produce_value in produce_value3" );
+	nursery.nurse( produce_value2() )?; debug!( "spawn produce_value2 in produce_value3" );
 	Ok(())
 }
 
@@ -65,10 +72,14 @@ fn produce_value3( nursery: &(impl Nurse<usize> + Send + 'static) ) -> Result<()
 //
 async fn main() -> Result<(), DynError>
 {
-	let sum = AsyncStd::block_on( spawns_inside() )?;
+	flexi_logger::Logger::with_str( "trace, async_std=warn" ).start().unwrap();
 
+	loop
+	{
+		let sum = spawns_inside().await?;
 
-	println!( "Total of all concurrent operations is: {}.", sum );
+		println!( "Total of all concurrent operations is: {}.", sum );
+	}
 
 	Ok(())
 }

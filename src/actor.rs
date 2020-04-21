@@ -8,7 +8,7 @@ use
 
 impl<S, Out> Actor for Nursery<S, Out>
 
-	where S  : 'static + SpawnHandle<Out> + SpawnHandle<()> + Send,
+	where S  : 'static + Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send,
 	      Out: 'static + Send
 
 {}
@@ -44,7 +44,7 @@ impl<Fut> Message for NurseTask<Fut>
 impl<S, Fut> Handler< NurseTask<Fut> > for Nursery<S, Fut::Output>
 
 	where Fut: 'static + Future + Send,
-	      S  : 'static + SpawnHandle<Fut::Output> + SpawnHandle<()> + Send,
+	      S  : 'static + Unpin + SpawnHandle<Fut::Output> + SpawnHandle<()> + Send,
 	      Fut::Output: 'static + Send,
 
 {

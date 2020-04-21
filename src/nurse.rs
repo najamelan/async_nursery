@@ -5,7 +5,7 @@ use crate::import::*;
 /// accept futures with the `nurse` method and implement `Stream` over the output
 /// type of the futures.
 //
-pub trait Nurse<Out: 'static + Send> : Stream<Item=Out>
+pub trait Nurse<Out: 'static + Send>
 {
 	/// Spawn a future and store it's JoinHandle.
 	//
