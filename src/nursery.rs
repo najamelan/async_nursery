@@ -17,10 +17,10 @@ pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> +
 
 
 /// The pinness of the Out parameter shouldn't really define our Unpin status, because
-/// we don't really hold it. FuturesUnordered does, but they claim to be unpin in any case.
+/// we don't really hold it. JoinHandle does, but they claim to be unpin in any case.
 ///
 /// We do directly hold S, so we require that to be unpin.
-// TODO: test thoroughly our assumptions here and those of FuturesUnordered.
+// TODO: test thoroughly our assumptions here and those of JoinHandle.
 //
 impl<S, Out> Unpin for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send {}
 
@@ -51,7 +51,13 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 					warn!( "<-- unlocked in while rx.next().await loop" );
 				}
 
-				in_flight2.fetch_sub( 1, SeqCst ); // TODO: checked sub?
+				// TODO: checked sub?
+				// there are no provided checked operations for atomics. But bad things will happen here if this overflows...
+				// for now, add an assert.
+				//
+				let check = in_flight2.fetch_sub( 1, SeqCst );
+				assert!( check > 0 );
+
 
 				stream_waker2.lock().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
 				warn!( "end of while rx.next().await loop" );
