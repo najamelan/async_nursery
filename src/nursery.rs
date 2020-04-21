@@ -7,12 +7,12 @@ use crate:: { import::*, Nurse, NurseryHandle };
 //
 pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
 {
-	spawner     : S                                               ,
-	unordered   : Arc<Mutex< FuturesUnordered<JoinHandle<Out>> >> ,
-	tx          : UnboundedSender<JoinHandle<Out>>                ,
-	channel     : JoinHandle<()>                                  ,
-	stream_waker: Arc<std::sync::Mutex<Option<Waker>>>            ,
-	in_flight   : Arc<AtomicUsize>                                ,
+	spawner     : S                                                  ,
+	tx          : UnboundedSender<JoinHandle<Out>>                   ,
+	channel     : JoinHandle<()>                                     ,
+	unordered   : Arc<FutMutex< FuturesUnordered<JoinHandle<Out>> >> ,
+	stream_waker: Arc<Mutex<Option<Waker>>>                          ,
+	in_flight   : Arc<AtomicUsize>                                   ,
 }
 
 
@@ -32,9 +32,9 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 	///
 	pub fn new( spawner: S ) -> Result< Self, SpawnError >
 	{
-		let unordered    = Arc::new(Mutex::new( FuturesUnordered::new() ));
+		let unordered    = Arc::new(FutMutex::new( FuturesUnordered::new() ));
 		let in_flight    = Arc::new( AtomicUsize::new(0) );
-		let stream_waker = Arc::new( std::sync::Mutex::new( None ) );
+		let stream_waker = Arc::new( Mutex::new( None ) );
 
 		let (tx, mut rx)  = unbounded();
 		let unordered2    = unordered.clone();
@@ -53,7 +53,7 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 
 				in_flight2.fetch_sub( 1, SeqCst ); // TODO: checked sub?
 
-				stream_waker2.lock().unwrap().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
+				stream_waker2.lock().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
 				warn!( "end of while rx.next().await loop" );
 			}
 		};
@@ -67,7 +67,6 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 			tx        ,
 			channel   ,
 			in_flight ,
-
 			stream_waker,
 		})
 	}
@@ -140,7 +139,7 @@ impl<S, Out> Stream for Nursery<S, Out>
 			// so we have to manually wake up. When the pusher is done with the lock it anyways
 			// checks to see if there is a waker, so just set it before we try to unlock.
 			//
-			this.stream_waker.lock().unwrap().replace( cx.waker().clone() ); // TODO: get rid of unwrap.
+			this.stream_waker.lock().replace( cx.waker().clone() );
 
 			// Since they won't wake us up, poll is useless, just use try_lock. If we were pre-empted
 			// just before this, it would be fine, since we are in a &mut self method, so there is no
@@ -151,7 +150,7 @@ impl<S, Out> Stream for Nursery<S, Out>
 			{
 				Some(mut guard) =>
 				{
-					*this.stream_waker.lock().unwrap() = None; // TODO: get rid of unwrap.
+					*this.stream_waker.lock() = None;
 
 					// We have to check it before we poll futures unordered. Otherwise it might
 					// be set to zero between this poll and the moment we check and act on it.
@@ -206,7 +205,7 @@ impl<S, Out> Stream for Nursery<S, Out>
 			{
 				// Unset any wakers, since we got an item.
 				//
-				*this.stream_waker.lock().unwrap() = None; // TODO: get rid of unwrap.
+				*this.stream_waker.lock() = None;
 				debug!( "return some from stream" ); Poll::Ready(some)
 			},
 
@@ -219,6 +218,9 @@ impl<S, Out> Stream for Nursery<S, Out>
 		}
 	}
 
+
+	/// This can deadlock!
+	//
 	fn size_hint( &self ) -> (usize, Option<usize>)
 	{
 		block_on( self.unordered.lock() ).size_hint() // TODO: get rid of block_on

@@ -51,9 +51,10 @@ mod import
 		async_executors:: { SpawnHandle, SpawnHandleExt, JoinHandle },
 		futures :: { Stream, StreamExt, channel::mpsc::{ UnboundedSender, unbounded } },
 		futures :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn } },
-		futures :: { stream::FuturesUnordered, FutureExt, lock::Mutex, executor::block_on },
+		futures :: { stream::FuturesUnordered, FutureExt, lock::Mutex as FutMutex, executor::block_on },
 		std :: { task::{ Context, Poll, Waker }, pin::Pin, future::Future, sync::{ Arc, atomic::{ AtomicUsize, Ordering::SeqCst } } } ,
 		log :: { * },
+		parking_lot:: { Mutex } ,
 	};
 
 
