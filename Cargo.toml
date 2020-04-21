@@ -25,6 +25,7 @@ path = "../thespis/thespis"
 
 [dev-dependencies]
 flexi_logger = "^0.15"
+loom = "^0.3"
 pretty_assertions = "^0.6"
 
 [dev-dependencies.async-std]
@@ -56,11 +57,3 @@ version = "0.1.0"
 [package.metadata.docs.rs]
 all-features = true
 targets = []
-
-[patch]
-[patch.crates-io]
-[patch.crates-io.futures]
-path = "../RUST/futures-rs/futures"
-
-[patch.crates-io.futures-task]
-path = "../RUST/futures-rs/futures-task"

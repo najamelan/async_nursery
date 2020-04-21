@@ -45,12 +45,16 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 		{
 			while let Some(handle) = rx.next().await
 			{
-				warn!( "locking in while rx.next().await loop" );
-				unordered2.lock().await.push( handle );
+				{
+					warn!( "--> locking in while rx.next().await loop" );
+					unordered2.lock().await.push( handle );
+					warn!( "<-- unlocked in while rx.next().await loop" );
+				}
+
 				in_flight2.fetch_sub( 1, SeqCst ); // TODO: checked sub?
 
 				stream_waker2.lock().unwrap().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
-				warn!( "unlocking in while rx.next().await loop" );
+				warn!( "end of while rx.next().await loop" );
 			}
 		};
 
@@ -126,21 +130,48 @@ impl<S, Out> Stream for Nursery<S, Out>
 		debug!( "poll_next called" );
 
 		let this = self.get_mut();
+		let in_flight;
 
 		let poll_stream =
 		{
-			warn!( "locking in poll_next" );
+			debug!( "locking in poll_next" );
 
-			match Pin::new( &mut this.unordered.lock() ).poll( cx )
+			// futures mutex will drop our waker with the future we got from the lock() method,
+			// so we have to manually wake up. When the pusher is done with the lock it anyways
+			// checks to see if there is a waker, so just set it before we try to unlock.
+			//
+			this.stream_waker.lock().unwrap().replace( cx.waker().clone() ); // TODO: get rid of unwrap.
+
+			// Since they won't wake us up, poll is useless, just use try_lock. If we were pre-empted
+			// just before this, it would be fine, since we are in a &mut self method, so there is no
+			// other code elsewhere running this, and the wake will make sure we will get called another
+			// time. If the try_lock succeeds, we unset the waker we just set.
+			//
+			match this.unordered.try_lock()
 			{
-				Poll::Ready(mut guard) =>
+				Some(mut guard) =>
 				{
+					*this.stream_waker.lock().unwrap() = None; // TODO: get rid of unwrap.
+
+					// We have to check it before we poll futures unordered. Otherwise it might
+					// be set to zero between this poll and the moment we check and act on it.
+					//
+					in_flight = this.in_flight.load( SeqCst );
+
+					// Now we have the guard, so if this returns pending, FuturesUnordered
+					// will wake us up.
+					//
 					let result = Pin::new( &mut *guard ).poll_next( cx );
-					warn!( "unlocking in poll_next" );
+					debug!( "unlocking in poll_next" );
 					result
 				}
 
-				Poll::Pending => { warn!( "failed to lock in poll_next, return pending" ); return Poll::Pending },
+				None =>
+				{
+					debug!( "failed to lock in poll_next, return pending" );
+
+					return Poll::Pending
+				},
 			}
 		};
 
@@ -150,22 +181,41 @@ impl<S, Out> Stream for Nursery<S, Out>
 			Poll::Ready( None ) =>
 			{
 				// if none in flight, return None, otherwise return Pending and wake the task later.
+				// We have to check both the value of in_flight just before we polled FuturesUnordered
+				// and now, because we might have been pre-empted at an inopportune moment and have the
+				// value changed from underneath us.
 				//
-				match this.in_flight.load( SeqCst )
+				if in_flight == 0 && 0 == this.in_flight.load( SeqCst )
 				{
-					0 => { debug!( "return None from stream" ); Poll::Ready( None ) }
+					debug!( "return None from stream" );
+					Poll::Ready( None )
+				}
 
-					_ =>
-					{
-						this.stream_waker.lock().unwrap().replace( cx.waker().clone() ); // TODO: get rid of unwrap.
-						error!( "storing waker" );
-						Poll::Pending
-					}
+				else
+				{
+					// FuturesUnordered returned None even though there was still in flight tasks.
+					// Just spin.
+					//
+					cx.waker().wake_by_ref();
+
+					Poll::Pending
 				}
 			}
 
-			Poll::Ready(some) => { debug!( "return some from stream" ); Poll::Ready(some) },
-			Poll::Pending     => { debug!( "return pending from stream" ); Poll::Pending },
+			Poll::Ready(some) =>
+			{
+				// Unset any wakers, since we got an item.
+				//
+				*this.stream_waker.lock().unwrap() = None; // TODO: get rid of unwrap.
+				debug!( "return some from stream" ); Poll::Ready(some)
+			},
+
+			Poll::Pending =>
+			{
+				debug!( "return pending from stream" );
+
+				Poll::Pending
+			},
 		}
 	}
 

@@ -72,11 +72,13 @@ fn produce_value3( nursery: &(impl Nurse<usize> + Send + 'static) ) -> Result<()
 //
 async fn main() -> Result<(), DynError>
 {
-	flexi_logger::Logger::with_str( "trace, async_std=warn" ).start().unwrap();
+	// flexi_logger::Logger::with_str( "trace, async_std=warn" ).start().unwrap();
 
 	loop
 	{
 		let sum = spawns_inside().await?;
+
+		assert_eq!( sum, 30 );
 
 		println!( "Total of all concurrent operations is: {}.", sum );
 	}

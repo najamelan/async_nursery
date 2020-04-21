@@ -43,6 +43,8 @@ async fn main() -> Result<(), DynError>
 
 	let sum = nursery.fold(0, |acc, x| async move { acc + x } ).await;
 
+	assert_eq!( sum, 15 );
+
 	println!( "Total of all concurrent operations is: {}.", sum );
 
 	Ok(())
