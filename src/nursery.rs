@@ -13,14 +13,12 @@ pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> +
 	unordered   : Arc<FutMutex< FuturesUnordered<JoinHandle<Out>> >> ,
 	stream_waker: Arc<Mutex<Option<Waker>>>                          ,
 	in_flight   : Arc<AtomicUsize>                                   ,
+	closed      : Arc<AtomicBool>                                    ,
 }
 
 
 /// The pinness of the Out parameter shouldn't really define our Unpin status, because
-/// we don't really hold it. JoinHandle does, but they claim to be unpin in any case.
-///
-/// We do directly hold S, so we require that to be unpin.
-// TODO: test thoroughly our assumptions here and those of JoinHandle.
+/// we don't really hold it.
 //
 impl<S, Out> Unpin for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send {}
 
@@ -32,8 +30,9 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 	///
 	pub fn new( spawner: S ) -> Result< Self, SpawnError >
 	{
-		let unordered    = Arc::new(FutMutex::new( FuturesUnordered::new() ));
+		let unordered    = Arc::new( FutMutex::new( FuturesUnordered::new() ) );
 		let in_flight    = Arc::new( AtomicUsize::new(0) );
+		let closed       = Arc::new( AtomicBool::new( false ) );
 		let stream_waker = Arc::new( Mutex::new( None ) );
 
 		let (tx, mut rx)  = unbounded();
@@ -68,11 +67,12 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 
 		Ok( Self
 		{
-			spawner   ,
-			unordered ,
-			tx        ,
-			channel   ,
-			in_flight ,
+			spawner     ,
+			unordered   ,
+			tx          ,
+			channel     ,
+			in_flight   ,
+			closed      ,
 			stream_waker,
 		})
 	}
@@ -92,7 +92,7 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
  		//
  		let tx = self.tx.clone();
 
-		NurseryHandle::new( self.spawner.clone(), tx, self.in_flight.clone() )
+		NurseryHandle::new( self.spawner.clone(), tx, self.in_flight.clone(), self.closed.clone() )
 	}
 }
 
@@ -190,7 +190,10 @@ impl<S, Out> Stream for Nursery<S, Out>
 				// and now, because we might have been pre-empted at an inopportune moment and have the
 				// value changed from underneath us.
 				//
-				if in_flight == 0 && 0 == this.in_flight.load( SeqCst )
+				if    0    == in_flight
+				   && 0    == this.in_flight.load( SeqCst )
+				   && true == this.closed   .load( SeqCst )
+
 				{
 					debug!( "return None from stream" );
 					Poll::Ready( None )
@@ -232,3 +235,43 @@ impl<S, Out> Stream for Nursery<S, Out>
 		block_on( self.unordered.lock() ).size_hint() // TODO: get rid of block_on
 	}
 }
+
+
+
+impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
+
+	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+
+{
+	type Error = SpawnError;
+
+	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		// TODO: Return error if closed.
+		//
+		Poll::Ready( Ok(()) )
+	}
+
+
+	fn start_send( self: Pin<&mut Self>, fut: FutureObj<'static, Out> ) -> Result<(), Self::Error>
+	{
+		self.nurse_obj( fut )
+	}
+
+
+	fn poll_flush( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		Poll::Ready( Ok(()) )
+	}
+
+
+	/// This is a no-op. The address can only really close when dropped. Close has no meaning before that.
+	//
+	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		self.closed.store( true, SeqCst );
+
+		Poll::Ready( Ok(()) )
+	}
+}
+

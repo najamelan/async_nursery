@@ -7,17 +7,18 @@ use crate:: { import::*, Nurse };
 //
 pub struct NurseryHandle<S, Out> where S: SpawnHandle<Out> + Clone + Send, Out: 'static + Send
 {
-	tx: UnboundedSender<JoinHandle<Out>>,
-	spawner: S,
-	in_flight: Arc<AtomicUsize>,
+	tx       : UnboundedSender<JoinHandle<Out>> ,
+	spawner  : S                                ,
+	in_flight: Arc<AtomicUsize>                 ,
+	closed   : Arc<AtomicBool>                  ,
 }
 
 
 impl<S, Out> NurseryHandle<S, Out> where S: SpawnHandle<Out> + Clone + Send, Out: 'static + Send
 {
-	pub(crate) fn new( spawner: S, tx: UnboundedSender<JoinHandle<Out>>, in_flight: Arc<AtomicUsize> ) -> Self
+	pub(crate) fn new( spawner: S, tx: UnboundedSender<JoinHandle<Out>>, in_flight: Arc<AtomicUsize>, closed: Arc<AtomicBool> ) -> Self
 	{
-		Self { spawner, tx, in_flight }
+		Self { spawner, tx, in_flight, closed }
 	}
 }
 
@@ -50,9 +51,10 @@ impl<S, Out> Clone for NurseryHandle<S, Out> where S: SpawnHandle<Out> + Clone +
 	{
 		Self
 		{
-			tx: self.tx.clone(),
-			spawner: self.spawner.clone(),
-			in_flight: self.in_flight.clone(),
+			tx        : self.tx        .clone() ,
+			spawner   : self.spawner   .clone() ,
+			in_flight : self.in_flight .clone() ,
+			closed    : self.closed    .clone() ,
 		}
 	}
 }
