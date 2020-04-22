@@ -19,7 +19,7 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 //
 async fn spawns_inside() -> Result<usize, DynError>
 {
-	let nursery = Nursery::new( AsyncStd )?;
+	let (nursery, output) = Nursery::new( AsyncStd )?;
 	debug!( "nursery created" );
 	nursery.nurse( produce_value () )?; 	debug!( "spawn produce_value" );
 	nursery.nurse( produce_value2() )?;	   debug!( "spawn produce_value2" );
@@ -35,7 +35,7 @@ async fn spawns_inside() -> Result<usize, DynError>
 
 	nursery.stop();
 
-	Ok( nursery.fold(0, |acc, x| async move
+	Ok( output.fold(0, |acc, x| async move
 	{
 		debug!( "fold, acc: {}", acc );
 		acc + x

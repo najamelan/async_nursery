@@ -1,5 +1,6 @@
 # TODO
 
+- test what happens if spawner is not 'static
 - don't spin in stream when not closed.
 - thorough use case analysis and turn those into tests
 - loom tests.

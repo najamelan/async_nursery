@@ -26,23 +26,23 @@
 )]
 
 
-mod error;
-mod nurse;
-mod nursery;
-mod nursery_handle;
-mod local_nurse;
-
-#[ cfg( feature = "thespis" ) ] mod actor;
-#[ cfg( feature = "thespis" ) ] pub use actor::*;
+mod error          ;
+mod nurse          ;
+mod nursery        ;
+mod nursery_stream ;
+mod local_nurse    ;
 
 pub use
 {
-	error                :: * ,
-	nurse                :: * ,
-	nursery              :: * ,
-	nursery_handle       :: * ,
-	local_nurse          :: * ,
+	error          :: * ,
+	nurse          :: * ,
+	nursery        :: * ,
+	nursery_stream :: * ,
+	local_nurse    :: * ,
 };
+
+#[ cfg( feature = "thespis" ) ] mod actor;
+#[ cfg( feature = "thespis" ) ] pub use actor::*;
 
 
 

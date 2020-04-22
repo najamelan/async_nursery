@@ -12,14 +12,14 @@ use common::{ import::*, DynResult };
 //
 #[test] fn in_method_local() -> DynResult
 {
-	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = Nursery::new_local( exec.clone() )?;
+	let exec              = TokioCt::try_from( &mut Builder::new() )?;
+	let (nursery, output) = Nursery::new_local( exec.clone() )?;
 
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.stop();
 
-	let sum = exec.block_on( nursery.fold( 0, |acc, x| async move { acc + x } ) );
+	let sum = exec.block_on( output.fold( 0, |acc, x| async move { acc + x } ) );
 
 	assert_eq!( 20, sum );
 
@@ -39,13 +39,13 @@ use common::{ import::*, DynResult };
 		Ok(())
 	}
 
-	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = Nursery::new_local( exec.clone() )?;
+	let exec              = TokioCt::try_from( &mut Builder::new() )?;
+	let (nursery, output) = Nursery::new_local( exec.clone() )?;
 
 	outlive( &nursery )?;
 	nursery.stop();
 
-	let sum = exec.block_on( nursery.fold( 0, |acc, x| async move { acc + x } ) );
+	let sum = exec.block_on( output.fold( 0, |acc, x| async move { acc + x } ) );
 
 	assert_eq!( 20, sum );
 

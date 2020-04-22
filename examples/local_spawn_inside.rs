@@ -22,7 +22,7 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 async fn spawns_inside() -> Result<usize, DynError>
 {
 	let exec = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = Nursery::new( exec.clone() )?;
+	let (nursery, output) = Nursery::new( exec.clone() )?;
 	debug!( "nursery created" );
 	nursery.nurse( produce_value () )?; 	debug!( "spawn produce_value" );
 	nursery.nurse( produce_value2() )?;	   debug!( "spawn produce_value2" );
@@ -38,7 +38,7 @@ async fn spawns_inside() -> Result<usize, DynError>
 
 	nursery.stop();
 
-	Ok( exec.block_on( nursery.fold(0, |acc, x| async move
+	Ok( exec.block_on( output.fold(0, |acc, x| async move
 	{
 		debug!( "fold, acc: {}", acc );
 		acc + x

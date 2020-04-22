@@ -15,19 +15,19 @@ use common::{ import::*, DynResult };
 //
 async fn mixed_spawn_consume() -> DynResult
 {
-	let mut nursery = Nursery::new( AsyncStd )?;
+	let (nursery, mut output) = Nursery::new( AsyncStd )?;
 	let mut accu    = 0;
 
 	nursery.nurse( async { 5 + 5 } )?;
-	accu += nursery.next().await.unwrap();
+	accu += output.next().await.unwrap();
 
 	nursery.nurse( async { 5 + 5 } )?;
-	accu += nursery.next().await.unwrap();
+	accu += output.next().await.unwrap();
 
 	assert_eq!( 20, accu );
 
 	nursery.stop();
-	assert_eq!( None, nursery.next().await );
+	assert_eq!( None, output.next().await );
 
 	Ok(())
 }
@@ -39,7 +39,7 @@ async fn mixed_spawn_consume() -> DynResult
 //
 async fn mixed_spawn_consume_concurrent() -> DynResult
 {
-	async fn spawner( nursery: NurseryHandle<AsyncStd, usize> ) -> DynResult
+	async fn spawner( nursery: Nursery<AsyncStd, usize> ) -> DynResult
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 
@@ -47,10 +47,10 @@ async fn mixed_spawn_consume_concurrent() -> DynResult
 	}
 
 
-	let mut nursery = Nursery::new( AsyncStd )?;
+	let (nursery, output) = Nursery::new( AsyncStd )?;
 
-	let handle  = AsyncStd.spawn_handle( spawner( nursery.handle() ) )?;
-	let handle2 = AsyncStd.spawn_handle( spawner( nursery.handle() ) )?;
+	let handle  = AsyncStd.spawn_handle( spawner( nursery.clone() ) )?;
+	let handle2 = AsyncStd.spawn_handle( spawner( nursery.clone() ) )?;
 
 	// if we don't do this, the nursery fold finishes before even a single task has been spawned on it.
 	//
@@ -60,7 +60,7 @@ async fn mixed_spawn_consume_concurrent() -> DynResult
 	assert!( handle2.await.is_ok() );
 	nursery.stop();
 
-	let sum = nursery.fold( 0, |acc, x| async move { acc + x } ).await;
+	let sum = output.fold( 0, |acc, x| async move { acc + x } ).await;
 
 	assert_eq!( 30, sum );
 
