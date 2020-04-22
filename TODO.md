@@ -1,5 +1,7 @@
 # TODO
 
+- make Sink::poll_close wait for the in_flight to be 0?
+
 - deadlock in mutex. we use block_on in size_hint.
 
 - futures mutex doesn't poison. check unwind safety.

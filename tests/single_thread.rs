@@ -10,15 +10,16 @@ use common::{ import::*, DynResult };
 
 // Basic usage within function.
 //
-fn in_method() -> DynResult
+#[test] fn in_method_local() -> DynResult
 {
 	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = Nursery::new( exec )?;
+	let nursery = LocalNursery::new( exec.clone() )?;
 
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.nurse( async { 5 + 5 } )?;
+	nursery.stop();
 
-	let sum = block_on( nursery.fold( 0, |acc, x| async move { acc + x } ).await );
+	let sum = exec.block_on( nursery.fold( 0, |acc, x| async move { acc + x } ) );
 
 	assert_eq!( 20, sum );
 
@@ -28,9 +29,9 @@ fn in_method() -> DynResult
 
 // A nursery passed in to a function that uses it to spawn.
 //
-fn outlive_method() -> DynResult
+#[test] fn outlive_method_local() -> DynResult
 {
-	fn outlive( nursery: &Nursery<AsyncStd, usize> ) -> DynResult
+	fn outlive( nursery: &LocalNursery<TokioCt, usize> ) -> DynResult
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 		nursery.nurse( async { 5 + 5 } )?;
@@ -39,11 +40,12 @@ fn outlive_method() -> DynResult
 	}
 
 	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = Nursery::new( exec )?;
+	let nursery = LocalNursery::new( exec.clone() )?;
 
 	outlive( &nursery )?;
+	nursery.stop();
 
-	let sum = block_on( nursery.fold( 0, |acc, x| async move { acc + x } ).await );
+	let sum = exec.block_on( nursery.fold( 0, |acc, x| async move { acc + x } ) );
 
 	assert_eq!( 20, sum );
 

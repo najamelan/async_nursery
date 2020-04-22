@@ -1,11 +1,11 @@
-use crate:: { import::*, Nurse };
+use crate:: { import::*, LocalNurse };
 
 
 /// A handle on which you can spawn tasks that will be sent to the Nursery.
 ///
 #[ derive( Debug ) ]
 //
-pub struct NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out: 'static + Send
+pub struct LocalNurseryHandle<S, Out> where Out: 'static
 {
 	tx       : UnboundedSender<JoinHandle<Out>> ,
 	spawner  : S                                ,
@@ -14,7 +14,7 @@ pub struct NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out: 'static + Send
 }
 
 
-impl<S, Out> NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out: 'static + Send
+impl<S, Out> LocalNurseryHandle<S, Out> where S: LocalSpawnHandle<Out> + Clone, Out: 'static
 {
 	pub(crate) fn new( spawner: S, tx: UnboundedSender<JoinHandle<Out>>, in_flight: Arc<AtomicUsize>, closed: Arc<AtomicBool> ) -> Self
 	{
@@ -23,11 +23,11 @@ impl<S, Out> NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out: 'static + Sen
 }
 
 
-impl<S, Out> Nurse<Out> for NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out: 'static + Send
+impl<S, Out> LocalNurse<Out> for LocalNurseryHandle<S, Out> where S: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), SpawnError>
+	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), SpawnError>
 	{
-		let handle = self.spawner.spawn_handle_obj( fut )?;
+		let handle = self.spawner.spawn_handle_local_obj( fut )?;
 
 		self.in_flight.fetch_add( 1, SeqCst );
 
@@ -36,16 +36,16 @@ impl<S, Out> Nurse<Out> for NurseryHandle<S, Out> where S: SpawnHandle<Out>, Out
 	}
 }
 
-impl<S> Spawn for NurseryHandle<S, ()> where S: SpawnHandle<()> + Clone
+impl<S> LocalSpawn for LocalNurseryHandle<S, ()> where S: LocalSpawnHandle<()> + Clone
 {
-	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
+	fn spawn_local_obj( &self, fut: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		self.nurse_obj( fut )
+		self.nurse_local_obj( fut )
 	}
 }
 
 
-impl<S, Out> Clone for NurseryHandle<S, Out> where S: SpawnHandle<Out> + Clone, Out: 'static + Send
+impl<S, Out> Clone for LocalNurseryHandle<S, Out> where S: Clone
 {
 	fn clone( &self ) -> Self
 	{

@@ -5,7 +5,7 @@ use crate:: { import::*, Nurse, NurseryHandle };
 ///
 #[ derive( Debug ) ]
 //
-pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
 	spawner     : S                                                  ,
 	tx          : UnboundedSender<JoinHandle<Out>>                   ,
@@ -18,7 +18,7 @@ pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> +
 
 
 
-impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
 	/// Create a new nursery.
 	///
@@ -88,11 +88,22 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 
 		NurseryHandle::new( self.spawner.clone(), tx, self.in_flight.clone(), self.closed.clone() )
 	}
+
+
+	/// Stop accepting new futures. You need to call this for the stream to finish.
+	/// The same effect can be achieved by calling `SinkExt::close`, however since that is
+	/// an async fn, this method is provided for convenience.
+	//
+	pub fn stop( &self )
+	{
+		self.closed.store( true, SeqCst );
+	}
+
 }
 
 
 
-impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
 	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), SpawnError>
 	{
@@ -108,7 +119,7 @@ impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + 
 
 
 
-impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()> + Send
+impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()>
 {
 	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
@@ -120,7 +131,7 @@ impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()> + Send
 
 impl<S, Out> Stream for Nursery<S, Out>
 
-	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
 	type Item = Out;
 
@@ -234,7 +245,7 @@ impl<S, Out> Stream for Nursery<S, Out>
 
 impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 
-	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
+	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 
 {
 	type Error = SpawnError;

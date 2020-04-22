@@ -26,6 +26,7 @@ async fn mixed_spawn_consume() -> DynResult
 
 	assert_eq!( 20, accu );
 
+	nursery.stop();
 	assert_eq!( None, nursery.next().await );
 
 	Ok(())
@@ -54,6 +55,7 @@ async fn mixed_spawn_consume_concurrent() -> DynResult
 	// if we don't do this, the nursery fold finishes before even a single task has been spawned on it.
 	//
 	nursery.nurse( async { 5 + 5 } )?;
+	nursery.stop();
 
 	let sum = nursery.fold( 0, |acc, x| async move { acc + x } ).await;
 

@@ -19,6 +19,8 @@ async fn in_method() -> DynResult
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.nurse( async { 5 + 5 } )?;
 
+	nursery.stop();
+
 	let sum = nursery.fold( 0, |acc, x| async move { acc + x } ).await;
 
 	assert_eq!( 20, sum );
@@ -44,6 +46,7 @@ async fn outlive_method() -> DynResult
 	let nursery = Nursery::new( AsyncStd )?;
 
 	outlive( &nursery )?;
+	nursery.stop();
 
 	let sum = nursery.fold( 0, |acc, x| async move { acc + x } ).await;
 

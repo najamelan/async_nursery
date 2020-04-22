@@ -5,11 +5,11 @@ pub mod import
 {
 	pub use
 	{
-		async_executors :: { *                  } ,
-		async_nursery   :: { *                  } ,
-		futures         :: { StreamExt          } ,
-		tokio           :: { runtime::Builder   } ,
-		futures         :: { executor::block_on } ,
-		std             :: { convert::TryFrom   } ,
+		async_executors :: { *                           } ,
+		async_nursery   :: { *                           } ,
+		futures         :: { StreamExt                   } ,
+		tokio           :: { runtime::Builder            } ,
+		futures         :: { executor::block_on, SinkExt } ,
+		std             :: { convert::TryFrom            } ,
 	};
 }
