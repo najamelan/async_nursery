@@ -1,4 +1,4 @@
-use crate:: { import::*, Nurse, LocalNurse, LocalNurseryHandle };
+use crate:: { import::*, NurseErr, Nurse, LocalNurse, LocalNurseryHandle };
 
 
 /// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
@@ -102,15 +102,17 @@ impl<S, Out> LocalNursery<S, Out> where S: Unpin + LocalSpawnHandle<Out> + Local
 
 
 
-impl<S, Out> LocalNurse<Out> for LocalNursery<S, Out> where S: Unpin + LocalSpawnHandle<Out> + LocalSpawnHandle<()>, Out: 'static
+impl<S, Out> LocalNurse<Out> for LocalNursery<S, Out> where S: Unpin + LocalSpawnHandle<Out>, Out: 'static
 {
-	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), SpawnError>
+	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+
 		let handle = self.spawner.spawn_handle_local_obj( fut )?;
 
 		self.in_flight.fetch_add( 1, SeqCst );
 
-		self.tx.unbounded_send( handle ).unwrap(); // TODO: get rid of unwrap.
+		self.tx.unbounded_send( handle )?;
 
 		Ok(())
 	}
@@ -122,33 +124,27 @@ impl<S> LocalSpawn for LocalNursery<S, ()> where S: Unpin + LocalSpawnHandle<()>
 {
 	fn spawn_local_obj( &self, fut: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		self.nurse_local_obj( fut )
+		self.nurse_local_obj( fut ).map_err( |_| SpawnError::shutdown() )
 	}
 }
 
 
 
-impl<S, Out> Nurse<Out> for LocalNursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+impl<S, Out> Nurse<Out> for LocalNursery<S, Out> where S: Unpin + LocalSpawnHandle<Out> + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
-	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), SpawnError>
+	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
-		let handle = self.spawner.spawn_handle_obj( fut )?;
-
-		self.in_flight.fetch_add( 1, SeqCst );
-
-		self.tx.unbounded_send( handle ).unwrap(); // TODO: get rid of unwrap.
-
-		Ok(())
+		self.nurse_local_obj( fut.into() )
 	}
 }
 
 
 
-impl<S> Spawn for LocalNursery<S, ()> where S: Unpin + SpawnHandle<()>
+impl<S> Spawn for LocalNursery<S, ()> where S: Unpin + SpawnHandle<()> + LocalSpawnHandle<()>
 {
 	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		self.nurse_obj( fut )
+		self.nurse_obj( fut ).map_err( |_| SpawnError::shutdown() )
 	}
 }
 
@@ -229,6 +225,9 @@ impl<S, Out> Stream for LocalNursery<S, Out>
 					Poll::Ready( None )
 				}
 
+				// TODO: maybe wake up when calling close, so we can avoid spinning if we are only waiting
+				// on close?
+				//
 				else
 				{
 					debug!( "in_flight: {}"     , in_flight );
@@ -277,18 +276,20 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for LocalNursery<S, Out>
 	where S: Unpin + LocalSpawnHandle<Out> + LocalSpawnHandle<()>, Out: 'static
 
 {
-	type Error = SpawnError;
+	type Error = NurseErr;
 
 	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		// TODO: Return error if closed.
-		//
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
 		Poll::Ready( Ok(()) )
 	}
 
 
 	fn start_send( self: Pin<&mut Self>, fut: LocalFutureObj<'static, Out> ) -> Result<(), Self::Error>
 	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
 		self.nurse_local_obj( fut )
 	}
 

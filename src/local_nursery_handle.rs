@@ -1,4 +1,4 @@
-use crate:: { import::*, LocalNurse };
+use crate:: { import::*, LocalNurse, NurseErr };
 
 
 /// A handle on which you can spawn tasks that will be sent to the Nursery.
@@ -25,13 +25,15 @@ impl<S, Out> LocalNurseryHandle<S, Out> where S: LocalSpawnHandle<Out> + Clone, 
 
 impl<S, Out> LocalNurse<Out> for LocalNurseryHandle<S, Out> where S: LocalSpawnHandle<Out>, Out: 'static
 {
-	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), SpawnError>
+	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+
 		let handle = self.spawner.spawn_handle_local_obj( fut )?;
 
 		self.in_flight.fetch_add( 1, SeqCst );
 
-		self.tx.unbounded_send( handle ).unwrap(); // TODO: remove unwrap
+		self.tx.unbounded_send( handle )?;
 		Ok(())
 	}
 }
@@ -40,7 +42,7 @@ impl<S> LocalSpawn for LocalNurseryHandle<S, ()> where S: LocalSpawnHandle<()> +
 {
 	fn spawn_local_obj( &self, fut: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		self.nurse_local_obj( fut )
+		self.nurse_local_obj( fut ).map_err( |_| SpawnError::shutdown() )
 	}
 }
 

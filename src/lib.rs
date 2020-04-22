@@ -26,6 +26,7 @@
 )]
 
 
+mod error;
 mod nurse;
 mod nursery;
 mod nursery_handle;
@@ -38,6 +39,7 @@ mod local_nursery_handle;
 
 pub use
 {
+	error                :: * ,
 	nurse                :: * ,
 	nursery              :: * ,
 	nursery_handle       :: * ,
@@ -55,12 +57,13 @@ mod import
 	pub(crate) use
 	{
 		async_executors :: { SpawnHandle, SpawnHandleExt, LocalSpawnHandle, LocalSpawnHandleExt, JoinHandle },
-		futures         :: { Stream, Sink, StreamExt, channel::mpsc::{ UnboundedSender, unbounded } },
+		futures         :: { Stream, Sink, StreamExt, channel::mpsc::{ UnboundedSender, unbounded, TrySendError } },
 		futures         :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn } },
 		futures         :: { stream::FuturesUnordered, FutureExt, lock::Mutex as FutMutex, executor::block_on },
 		std             :: { task::{ Context, Poll, Waker }, pin::Pin, future::Future, sync::{ Arc, atomic::{ AtomicUsize, AtomicBool, Ordering::SeqCst } } } ,
-		log             :: { * },
+		log             :: { * } ,
 		parking_lot     :: { Mutex } ,
+		thiserror       :: { * } ,
 	};
 
 

@@ -1,5 +1,7 @@
 # TODO
 
+- what about restart? does FuturesUnordered support polling after it has ended?
+
 - make Sink::poll_close wait for the in_flight to be 0?
 
 - deadlock in mutex. we use block_on in size_hint.

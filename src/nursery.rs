@@ -1,11 +1,11 @@
-use crate:: { import::*, Nurse, NurseryHandle };
+use crate:: { import::*, Nurse, NurseryHandle, NurseErr };
 
 
 /// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
 ///
 #[ derive( Debug ) ]
 //
-pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+pub struct Nursery<S, Out> where Out: 'static + Send
 {
 	spawner     : S                                                  ,
 	tx          : UnboundedSender<JoinHandle<Out>>                   ,
@@ -18,7 +18,7 @@ pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, 
 
 
 
-impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+impl<S, Out> Nursery<S, Out> where S: SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
 {
 	/// Create a new nursery.
 	///
@@ -98,20 +98,21 @@ impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>
 	{
 		self.closed.store( true, SeqCst );
 	}
-
 }
 
 
 
-impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: SpawnHandle<Out>, Out: 'static + Send
 {
-	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), SpawnError>
+	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+
 		let handle = self.spawner.spawn_handle_obj( fut )?;
 
 		self.in_flight.fetch_add( 1, SeqCst );
 
-		self.tx.unbounded_send( handle ).unwrap(); // TODO: get rid of unwrap.
+		self.tx.unbounded_send( handle )?;
 
 		Ok(())
 	}
@@ -123,7 +124,7 @@ impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()>
 {
 	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
-		self.nurse_obj( fut )
+		self.nurse_obj( fut ).map_err( |_| SpawnError::shutdown() )
 	}
 }
 
@@ -131,7 +132,7 @@ impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()>
 
 impl<S, Out> Stream for Nursery<S, Out>
 
-	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+	where S: Unpin, Out: 'static + Send
 {
 	type Item = Out;
 
@@ -245,21 +246,23 @@ impl<S, Out> Stream for Nursery<S, Out>
 
 impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 
-	where S: Unpin + SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+	where S: SpawnHandle<Out>, Out: 'static + Send
 
 {
-	type Error = SpawnError;
+	type Error = NurseErr;
 
 	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		// TODO: Return error if closed.
-		//
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
 		Poll::Ready( Ok(()) )
 	}
 
 
 	fn start_send( self: Pin<&mut Self>, fut: FutureObj<'static, Out> ) -> Result<(), Self::Error>
 	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
 		self.nurse_obj( fut )
 	}
 
@@ -274,6 +277,8 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
+		// TODO: wait for in_flight?
+		//
 		self.closed.store( true, SeqCst );
 
 		Poll::Ready( Ok(()) )

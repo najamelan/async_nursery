@@ -12,6 +12,7 @@ rustc_version = "^0.2"
 [dependencies]
 log = "^0.4"
 parking_lot = "^0.10"
+thiserror = "^1"
 
 [dependencies.async_executors]
 features = ["spawn_handle"]
