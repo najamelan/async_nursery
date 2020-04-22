@@ -9,7 +9,6 @@ pub struct Nursery<S, Out>
 {
 	spawner     : S                                ,
 	tx          : UnboundedSender<JoinHandle<Out>> ,
-	in_flight   : Arc<AtomicUsize>                 ,
 }
 
 
@@ -23,22 +22,12 @@ impl<S, Out> Nursery<S, Out>
 
 		where S: SpawnHandle<()>, Out: 'static + Send
 	{
-		let in_flight    = Arc::new( AtomicUsize::new(0) );
-		let stream_waker = Arc::new( Mutex::new( None ) );
-		let (tx, rx)     = unbounded();
-
-		let stream = NurseryStream::new
-		(
-			&spawner          ,
-			rx                ,
-			in_flight.clone() ,
-			stream_waker      ,
-		)?;
+		let (tx, rx) = unbounded();
 
 		Ok
 		((
-			Self{ spawner, tx, in_flight } ,
-			stream                                 ,
+			Self{ spawner, tx }       ,
+			NurseryStream::new( rx )? ,
 		))
 	}
 
@@ -50,29 +39,17 @@ impl<S, Out> Nursery<S, Out>
 
 		where S: LocalSpawnHandle<()>, Out: 'static
 	{
-		let in_flight    = Arc::new( AtomicUsize::new(0) );
-		let stream_waker = Arc::new( Mutex::new( None ) );
-		let (tx, rx)     = unbounded();
-
-		let stream = NurseryStream::new_local
-		(
-			&spawner          ,
-			rx                ,
-			in_flight.clone() ,
-			stream_waker      ,
-		)?;
+		let (tx, rx) = unbounded();
 
 		Ok
 		((
-			Self{ spawner, tx, in_flight } ,
-			stream                                 ,
+			Self{ spawner, tx }       ,
+			NurseryStream::new( rx )? ,
 		))
 	}
 
 
-	/// Stop accepting new futures. You need to call this for the stream to finish.
-	/// The same effect can be achieved by calling `SinkExt::close`, however since that is
-	/// an async fn, this method is provided for convenience.
+	/// Stop this nursery and any clones from accepting any more tasks.
 	//
 	pub fn close_nursery( &self )
 	{
@@ -90,8 +67,6 @@ impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: SpawnHandle<Out>, Out: 'sta
 
 		let handle = self.spawner.spawn_handle_obj( fut )?;
 
-		self.in_flight.fetch_add( 1, SeqCst );
-
 		self.tx.unbounded_send( handle )?;
 
 		Ok(())
@@ -107,8 +82,6 @@ impl<S, Out> LocalNurse<Out> for Nursery<S, Out> where S: LocalSpawnHandle<Out>,
 		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
 
 		let handle = self.spawner.spawn_handle_local_obj( fut )?;
-
-		self.in_flight.fetch_add( 1, SeqCst );
 
 		self.tx.unbounded_send( handle )?;
 
@@ -171,8 +144,6 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		// TODO: wait for in_flight?
-		//
 		self.tx.close_channel();
 
 		Poll::Ready( Ok(()) )

@@ -52,23 +52,15 @@ mod import
 {
 	pub(crate) use
 	{
-		async_executors :: { SpawnHandle, SpawnHandleExt, LocalSpawnHandle, LocalSpawnHandleExt, JoinHandle },
-		futures         :: { Stream, Sink, StreamExt, channel::mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } },
-		futures         :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn } },
-		futures         :: { stream::FuturesUnordered, FutureExt, lock::Mutex as FutMutex, executor::block_on },
-		std             :: { task::{ Context, Poll, Waker }, pin::Pin, future::Future, sync::{ Arc, atomic::{ AtomicUsize, AtomicBool, Ordering::SeqCst } } } ,
-		log             :: { * } ,
-		parking_lot     :: { Mutex } ,
-		thiserror       :: { * } ,
+		async_executors  :: { SpawnHandle, LocalSpawnHandle, JoinHandle                             } ,
+		futures          :: { ready, stream::Fuse, Stream, Sink, StreamExt                          } ,
+		futures::channel :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
+		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
+		futures          :: { stream::FuturesUnordered, FutureExt                                   } ,
+		std              :: { task::{ Context, Poll }, pin::Pin, future::Future                     } ,
+		log              :: { *                                                                     } ,
+		thiserror        :: { *                                                                     } ,
 	};
-
-
-	// #[ cfg( test ) ]
-	// //
-	// pub(crate) use
-	// {
-	// 	pretty_assertions :: { assert_eq } ,
-	// };
 }
 
 
