@@ -13,7 +13,7 @@ use common::{ import::*, DynResult };
 #[test] fn in_method_local() -> DynResult
 {
 	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = LocalNursery::new( exec.clone() )?;
+	let nursery = Nursery::new_local( exec.clone() )?;
 
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.nurse( async { 5 + 5 } )?;
@@ -31,7 +31,7 @@ use common::{ import::*, DynResult };
 //
 #[test] fn outlive_method_local() -> DynResult
 {
-	fn outlive( nursery: &LocalNursery<TokioCt, usize> ) -> DynResult
+	fn outlive( nursery: &Nursery<TokioCt, usize> ) -> DynResult
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 		nursery.nurse( async { 5 + 5 } )?;
@@ -40,7 +40,7 @@ use common::{ import::*, DynResult };
 	}
 
 	let exec    = TokioCt::try_from( &mut Builder::new() )?;
-	let nursery = LocalNursery::new( exec.clone() )?;
+	let nursery = Nursery::new_local( exec.clone() )?;
 
 	outlive( &nursery )?;
 	nursery.stop();

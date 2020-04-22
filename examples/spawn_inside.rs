@@ -33,6 +33,8 @@ async fn spawns_inside() -> Result<usize, DynError>
 	//
 	produce_value3( &nursery )?; debug!( "call produce_value3" );
 
+	nursery.stop();
+
 	Ok( nursery.fold(0, |acc, x| async move
 	{
 		debug!( "fold, acc: {}", acc );
@@ -74,7 +76,7 @@ async fn main() -> Result<(), DynError>
 {
 	// flexi_logger::Logger::with_str( "trace, async_std=warn" ).start().unwrap();
 
-	loop
+	// loop
 	{
 		let sum = spawns_inside().await?;
 

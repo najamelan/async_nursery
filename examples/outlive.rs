@@ -41,6 +41,7 @@ async fn main() -> Result<(), DynError>
 
 	needs_to_spawn( &nursery )?;
 
+	nursery.stop();
 	let sum = nursery.fold(0, |acc, x| async move { acc + x } ).await;
 
 	assert_eq!( sum, 15 );

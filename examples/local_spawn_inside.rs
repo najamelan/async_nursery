@@ -3,7 +3,7 @@ use
 	async_executors :: { * } ,
 	async_nursery   :: { * } ,
 	log             :: { * } ,
-	futures         :: { SinkExt, StreamExt, executor::block_on } ,
+	futures         :: { StreamExt, executor::block_on } ,
 	tokio           :: { runtime::Builder } ,
 	std             :: { convert::TryFrom } ,
 };
@@ -21,8 +21,8 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 //
 async fn spawns_inside() -> Result<usize, DynError>
 {
-	let exec = TokioCt::try_from( &mut tokio::runtime::Builder::new() )?;
-	let mut nursery = LocalNursery::new( exec.clone() )?;
+	let exec = TokioCt::try_from( &mut Builder::new() )?;
+	let nursery = Nursery::new( exec.clone() )?;
 	debug!( "nursery created" );
 	nursery.nurse( produce_value () )?; 	debug!( "spawn produce_value" );
 	nursery.nurse( produce_value2() )?;	   debug!( "spawn produce_value2" );
@@ -36,7 +36,7 @@ async fn spawns_inside() -> Result<usize, DynError>
 	//
 	produce_value3( &nursery )?; debug!( "call produce_value3" );
 
-	nursery.close().await?;
+	nursery.stop();
 
 	Ok( exec.block_on( nursery.fold(0, |acc, x| async move
 	{

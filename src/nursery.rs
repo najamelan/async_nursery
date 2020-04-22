@@ -1,11 +1,11 @@
-use crate:: { import::*, Nurse, NurseryHandle, NurseErr };
+use crate:: { import::*, Nurse, LocalNurse, NurseryHandle, NurseErr };
 
 
 /// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
 ///
 #[ derive( Debug ) ]
 //
-pub struct Nursery<S, Out> where Out: 'static + Send
+pub struct Nursery<S, Out>
 {
 	spawner     : S                                                  ,
 	tx          : UnboundedSender<JoinHandle<Out>>                   ,
@@ -18,44 +18,21 @@ pub struct Nursery<S, Out> where Out: 'static + Send
 
 
 
-impl<S, Out> Nursery<S, Out> where S: SpawnHandle<Out> + SpawnHandle<()>, Out: 'static + Send
+impl<S, Out> Nursery<S, Out>
 {
 	/// Create a new nursery.
 	///
 	pub fn new( spawner: S ) -> Result< Self, SpawnError >
+
+		where S: 'static + SpawnHandle<()>, Out: 'static + Send
 	{
 		let unordered    = Arc::new( FutMutex::new( FuturesUnordered::new() ) );
 		let in_flight    = Arc::new( AtomicUsize::new(0) );
 		let closed       = Arc::new( AtomicBool::new( false ) );
 		let stream_waker = Arc::new( Mutex::new( None ) );
+		let (tx, rx)     = unbounded();
 
-		let (tx, mut rx)  = unbounded();
-		let unordered2    = unordered.clone();
-		let in_flight2    = in_flight.clone();
-		let stream_waker2 = stream_waker.clone();
-
-		let listen = async move
-		{
-			while let Some(handle) = rx.next().await
-			{
-				{
-					warn!( "--> locking in while rx.next().await loop" );
-					unordered2.lock().await.push( handle );
-					warn!( "<-- unlocked in while rx.next().await loop" );
-				}
-
-				// TODO: checked sub?
-				// there are no provided checked operations for atomics. But bad things will happen here if this overflows...
-				// for now, add an assert.
-				//
-				let check = in_flight2.fetch_sub( 1, SeqCst );
-				assert!( check > 0 );
-
-
-				stream_waker2.lock().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
-				warn!( "end of while rx.next().await loop" );
-			}
-		};
+		let listen = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx );
 
 		let channel = spawner.spawn_handle( listen )?;
 
@@ -71,6 +48,63 @@ impl<S, Out> Nursery<S, Out> where S: SpawnHandle<Out> + SpawnHandle<()>, Out: '
 		})
 	}
 
+	/// Create a new nursery.
+	///
+	pub fn new_local( spawner: S ) -> Result< Self, SpawnError >
+
+		where S: 'static + LocalSpawnHandle<()>, Out: 'static
+	{
+		let unordered    = Arc::new( FutMutex::new( FuturesUnordered::new() ) );
+		let in_flight    = Arc::new( AtomicUsize::new(0) );
+		let closed       = Arc::new( AtomicBool::new( false ) );
+		let stream_waker = Arc::new( Mutex::new( None ) );
+		let (tx, rx)     = unbounded();
+
+		let listen = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx );
+
+		let channel = spawner.spawn_handle_local( listen )?;
+
+		Ok( Self
+		{
+			spawner     ,
+			unordered   ,
+			tx          ,
+			channel     ,
+			in_flight   ,
+			closed      ,
+			stream_waker,
+		})
+	}
+
+
+	async fn listen
+	(
+		unordered   : Arc<FutMutex< FuturesUnordered<JoinHandle<Out>> >>,
+		stream_waker: Arc<Mutex<Option<Waker>>>,
+		in_flight   : Arc<AtomicUsize>,
+		mut rx      : UnboundedReceiver<JoinHandle<Out>>,
+	)
+	{
+		while let Some(handle) = rx.next().await
+		{
+			{
+				warn!( "--> locking in while rx.next().await loop" );
+				unordered.lock().await.push( handle );
+				warn!( "<-- unlocked in while rx.next().await loop" );
+			}
+
+			// TODO: checked sub?
+			// there are no provided checked operations for atomics. But bad things will happen here if this overflows...
+			// for now, add an assert.
+			//
+			let check = in_flight.fetch_sub( 1, SeqCst );
+			assert!( check > 0 );
+
+
+			stream_waker.lock().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
+			warn!( "end of while rx.next().await loop" );
+		}
+	}
 
 
 	/// Obtain a handle that can be used to spawn on this nursery. This allows
@@ -120,11 +154,39 @@ impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: SpawnHandle<Out>, Out: 'sta
 
 
 
-impl<S> Spawn for Nursery<S, ()> where S: Unpin + SpawnHandle<()>
+impl<S, Out> LocalNurse<Out> for Nursery<S, Out> where S: LocalSpawnHandle<Out>, Out: 'static
+{
+	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+
+		let handle = self.spawner.spawn_handle_local_obj( fut )?;
+
+		self.in_flight.fetch_add( 1, SeqCst );
+
+		self.tx.unbounded_send( handle )?;
+
+		Ok(())
+	}
+}
+
+
+
+impl<S> Spawn for Nursery<S, ()> where S: SpawnHandle<()>
 {
 	fn spawn_obj( &self, fut: FutureObj<'static, ()> ) -> Result<(), SpawnError>
 	{
 		self.nurse_obj( fut ).map_err( |_| SpawnError::shutdown() )
+	}
+}
+
+
+
+impl<S> LocalSpawn for Nursery<S, ()> where S: LocalSpawnHandle<()>
+{
+	fn spawn_local_obj( &self, fut: LocalFutureObj<'static, ()> ) -> Result<(), SpawnError>
+	{
+		self.nurse_local_obj( fut ).map_err( |_| SpawnError::shutdown() )
 	}
 }
 
@@ -284,4 +346,47 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 		Poll::Ready( Ok(()) )
 	}
 }
+
+
+
+impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
+
+	where S: LocalSpawnHandle<Out>, Out: 'static
+
+{
+	type Error = NurseErr;
+
+	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
+		Poll::Ready( Ok(()) )
+	}
+
+
+	fn start_send( self: Pin<&mut Self>, fut: LocalFutureObj<'static, Out> ) -> Result<(), Self::Error>
+	{
+		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+
+		self.nurse_local_obj( fut )
+	}
+
+
+	fn poll_flush( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		Poll::Ready( Ok(()) )
+	}
+
+
+	/// This is a no-op. The address can only really close when dropped. Close has no meaning before that.
+	//
+	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
+	{
+		self.closed.store( true, SeqCst );
+
+		Poll::Ready( Ok(()) )
+	}
+}
+
+
 

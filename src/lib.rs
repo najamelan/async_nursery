@@ -31,8 +31,6 @@ mod nurse;
 mod nursery;
 mod nursery_handle;
 mod local_nurse;
-mod local_nursery;
-mod local_nursery_handle;
 
 #[ cfg( feature = "thespis" ) ] mod actor;
 #[ cfg( feature = "thespis" ) ] pub use actor::*;
@@ -44,8 +42,6 @@ pub use
 	nursery              :: * ,
 	nursery_handle       :: * ,
 	local_nurse          :: * ,
-	local_nursery        :: * ,
-	local_nursery_handle :: * ,
 };
 
 
@@ -57,7 +53,7 @@ mod import
 	pub(crate) use
 	{
 		async_executors :: { SpawnHandle, SpawnHandleExt, LocalSpawnHandle, LocalSpawnHandleExt, JoinHandle },
-		futures         :: { Stream, Sink, StreamExt, channel::mpsc::{ UnboundedSender, unbounded, TrySendError } },
+		futures         :: { Stream, Sink, StreamExt, channel::mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } },
 		futures         :: { task::{ FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn } },
 		futures         :: { stream::FuturesUnordered, FutureExt, lock::Mutex as FutMutex, executor::block_on },
 		std             :: { task::{ Context, Poll, Waker }, pin::Pin, future::Future, sync::{ Arc, atomic::{ AtomicUsize, AtomicBool, Ordering::SeqCst } } } ,
