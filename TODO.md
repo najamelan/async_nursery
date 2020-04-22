@@ -1,6 +1,6 @@
 # TODO
 
-- deadlock in mutex. we use block_on. In principle all locking is short, so it shouldn't deadlock. Might be bad for performance.
+- deadlock in mutex. we use block_on in size_hint.
 
 - futures mutex doesn't poison. check unwind safety.
 

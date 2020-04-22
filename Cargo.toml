@@ -34,7 +34,11 @@ features = ["attributes"]
 version = "^1"
 
 [dev-dependencies.async_executors]
-features = ["async_std", "spawn_handle"]
+features = ["async_std", "tokio_ct", "spawn_handle"]
+version = "^0.2"
+
+[dev-dependencies.tokio]
+features = ["sync"]
 version = "^0.2"
 
 [features]

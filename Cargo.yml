@@ -63,11 +63,12 @@ dependencies:
 
 dev-dependencies:
 
-  async_executors: { version: ^0.2, features: [ async_std, spawn_handle ] }
+  async_executors: { version: ^0.2, features: [ async_std, tokio_ct, spawn_handle ] }
   async-std : { version: ^1, features: [ attributes ] }
   pretty_assertions   : ^0.6
   flexi_logger: ^0.15
   loom: ^0.3
+  tokio: { version: ^0.2, features: [ sync ] }
 
 build-dependencies:
 

@@ -17,12 +17,6 @@ pub struct Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> +
 }
 
 
-/// The pinness of the Out parameter shouldn't really define our Unpin status, because
-/// we don't really hold it.
-//
-impl<S, Out> Unpin for Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send {}
-
-
 
 impl<S, Out> Nursery<S, Out> where S: Unpin + SpawnHandle<Out> + SpawnHandle<()> + Send, Out: 'static + Send
 {
