@@ -1,5 +1,9 @@
 # TODO
 
+- don't spin in stream when not closed.
+- thorough use case analysis and turn those into tests
+- loom tests.
+
 - what about restart? does FuturesUnordered support polling after it has ended?
 
 - make Sink::poll_close wait for the in_flight to be 0?

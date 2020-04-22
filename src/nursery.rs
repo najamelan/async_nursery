@@ -341,7 +341,7 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	{
 		// TODO: wait for in_flight?
 		//
-		self.closed.store( true, SeqCst );
+		self.stop();
 
 		Poll::Ready( Ok(()) )
 	}
@@ -382,7 +382,7 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		self.closed.store( true, SeqCst );
+		self.stop();
 
 		Poll::Ready( Ok(()) )
 	}
