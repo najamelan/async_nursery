@@ -17,7 +17,7 @@ use common::{ import::*, DynResult };
 
 	nursery.nurse( async { 5 + 5 } )?;
 	nursery.nurse( async { 5 + 5 } )?;
-	nursery.stop();
+	drop(nursery);
 
 	let sum = exec.block_on( output.fold( 0, |acc, x| async move { acc + x } ) );
 
@@ -43,7 +43,7 @@ use common::{ import::*, DynResult };
 	let (nursery, output) = Nursery::new_local( exec.clone() )?;
 
 	outlive( &nursery )?;
-	nursery.stop();
+	drop(nursery);
 
 	let sum = exec.block_on( output.fold( 0, |acc, x| async move { acc + x } ) );
 

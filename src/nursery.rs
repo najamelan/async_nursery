@@ -10,7 +10,6 @@ pub struct Nursery<S, Out>
 	spawner     : S                                ,
 	tx          : UnboundedSender<JoinHandle<Out>> ,
 	in_flight   : Arc<AtomicUsize>                 ,
-	closed      : Arc<AtomicBool>                  ,
 }
 
 
@@ -25,7 +24,6 @@ impl<S, Out> Nursery<S, Out>
 		where S: SpawnHandle<()>, Out: 'static + Send
 	{
 		let in_flight    = Arc::new( AtomicUsize::new(0) );
-		let closed       = Arc::new( AtomicBool::new( false ) );
 		let stream_waker = Arc::new( Mutex::new( None ) );
 		let (tx, rx)     = unbounded();
 
@@ -35,12 +33,11 @@ impl<S, Out> Nursery<S, Out>
 			rx                ,
 			in_flight.clone() ,
 			stream_waker      ,
-			closed.clone()    ,
 		)?;
 
 		Ok
 		((
-			Self{ spawner, tx, in_flight, closed } ,
+			Self{ spawner, tx, in_flight } ,
 			stream                                 ,
 		))
 	}
@@ -54,7 +51,6 @@ impl<S, Out> Nursery<S, Out>
 		where S: LocalSpawnHandle<()>, Out: 'static
 	{
 		let in_flight    = Arc::new( AtomicUsize::new(0) );
-		let closed       = Arc::new( AtomicBool::new( false ) );
 		let stream_waker = Arc::new( Mutex::new( None ) );
 		let (tx, rx)     = unbounded();
 
@@ -64,12 +60,11 @@ impl<S, Out> Nursery<S, Out>
 			rx                ,
 			in_flight.clone() ,
 			stream_waker      ,
-			closed.clone()    ,
 		)?;
 
 		Ok
 		((
-			Self{ spawner, tx, in_flight, closed } ,
+			Self{ spawner, tx, in_flight } ,
 			stream                                 ,
 		))
 	}
@@ -79,9 +74,9 @@ impl<S, Out> Nursery<S, Out>
 	/// The same effect can be achieved by calling `SinkExt::close`, however since that is
 	/// an async fn, this method is provided for convenience.
 	//
-	pub fn stop( &self )
+	pub fn close_nursery( &self )
 	{
-		self.closed.store( true, SeqCst );
+		self.tx.close_channel();
 	}
 }
 
@@ -91,7 +86,7 @@ impl<S, Out> Nurse<Out> for Nursery<S, Out> where S: SpawnHandle<Out>, Out: 'sta
 {
 	fn nurse_obj( &self, fut: FutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
 
 		let handle = self.spawner.spawn_handle_obj( fut )?;
 
@@ -109,7 +104,7 @@ impl<S, Out> LocalNurse<Out> for Nursery<S, Out> where S: LocalSpawnHandle<Out>,
 {
 	fn nurse_local_obj( &self, fut: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ) }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
 
 		let handle = self.spawner.spawn_handle_local_obj( fut )?;
 
@@ -152,7 +147,7 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 
 	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ).into() }
 
 		Poll::Ready( Ok(()) )
 	}
@@ -160,7 +155,7 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 
 	fn start_send( self: Pin<&mut Self>, fut: FutureObj<'static, Out> ) -> Result<(), Self::Error>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
 
 		self.nurse_obj( fut )
 	}
@@ -178,7 +173,7 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	{
 		// TODO: wait for in_flight?
 		//
-		self.stop();
+		self.tx.close_channel();
 
 		Poll::Ready( Ok(()) )
 	}
@@ -195,7 +190,7 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 
 	fn poll_ready( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ).into() }
 
 		Poll::Ready( Ok(()) )
 	}
@@ -203,7 +198,7 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 
 	fn start_send( self: Pin<&mut Self>, fut: LocalFutureObj<'static, Out> ) -> Result<(), Self::Error>
 	{
-		if self.closed.load( SeqCst ) { return Err( NurseErr::Closed ).into() }
+		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
 
 		self.nurse_local_obj( fut )
 	}
@@ -219,7 +214,7 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		self.stop();
+		self.tx.close_channel();
 
 		Poll::Ready( Ok(()) )
 	}

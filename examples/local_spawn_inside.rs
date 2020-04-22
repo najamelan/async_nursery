@@ -36,7 +36,7 @@ async fn spawns_inside() -> Result<usize, DynError>
 	//
 	produce_value3( &nursery )?; debug!( "call produce_value3" );
 
-	nursery.stop();
+	drop(nursery);
 
 	Ok( exec.block_on( output.fold(0, |acc, x| async move
 	{

@@ -26,7 +26,6 @@ impl<Out> NurseryStream<Out>
 		rx          : UnboundedReceiver<JoinHandle<Out>> ,
 		in_flight   : Arc<AtomicUsize>                   ,
 		stream_waker: Arc<Mutex<Option<Waker>>>          ,
-		closed      : Arc<AtomicBool>                    ,
 	)
 
 		-> Result< Self, SpawnError >
@@ -34,17 +33,11 @@ impl<Out> NurseryStream<Out>
 		where Out: 'static + Send
 	{
 		let unordered = Arc::new( FutMutex::new( FuturesUnordered::new() ) );
-		let listen    = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx );
+		let closed    = Arc::new( AtomicBool::new( false ) );
+		let listen    = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx, closed.clone() );
 		let channel   = spawner.spawn_handle( listen )?;
 
-		Ok( Self
-		{
-			unordered   ,
-			channel     ,
-			in_flight   ,
-			closed      ,
-			stream_waker,
-		})
+		Ok( Self{ unordered, channel, in_flight, closed, stream_waker } )
 	}
 
 	/// Create a new nursery.
@@ -55,7 +48,6 @@ impl<Out> NurseryStream<Out>
 		rx          : UnboundedReceiver<JoinHandle<Out>> ,
 		in_flight   : Arc<AtomicUsize>                   ,
 		stream_waker: Arc<Mutex<Option<Waker>>>          ,
-		closed      : Arc<AtomicBool>                    ,
 	)
 
 		-> Result< Self, SpawnError >
@@ -63,17 +55,11 @@ impl<Out> NurseryStream<Out>
 		where Out: 'static
 	{
 		let unordered = Arc::new( FutMutex::new( FuturesUnordered::new() ) );
-		let listen    = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx );
+		let closed    = Arc::new( AtomicBool::new( false ) );
+		let listen    = Self::listen( unordered.clone(), stream_waker.clone(), in_flight.clone(), rx, closed.clone() );
 		let channel   = spawner.spawn_handle_local( listen )?;
 
-		Ok( Self
-		{
-			unordered   ,
-			channel     ,
-			in_flight   ,
-			closed      ,
-			stream_waker,
-		})
+		Ok( Self{ unordered, channel, in_flight, closed, stream_waker } )
 	}
 
 
@@ -83,6 +69,7 @@ impl<Out> NurseryStream<Out>
 		stream_waker: Arc<Mutex<Option<Waker>>>,
 		in_flight   : Arc<AtomicUsize>,
 		mut rx      : UnboundedReceiver<JoinHandle<Out>>,
+		closed      : Arc<AtomicBool>                    ,
 	)
 	{
 		while let Some(handle) = rx.next().await
@@ -104,6 +91,8 @@ impl<Out> NurseryStream<Out>
 			stream_waker.lock().take().map( |w: Waker| { error!( "waking waker" ); w.wake(); } ); // TODO: get rid of unwrap.
 			warn!( "end of while rx.next().await loop" );
 		}
+
+		closed.store( true, SeqCst );
 	}
 
 	/// Stop accepting new futures. You need to call this for the stream to finish.

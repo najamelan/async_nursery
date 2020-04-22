@@ -26,7 +26,7 @@ async fn mixed_spawn_consume() -> DynResult
 
 	assert_eq!( 20, accu );
 
-	nursery.stop();
+	drop(nursery);
 	assert_eq!( None, output.next().await );
 
 	Ok(())
@@ -58,7 +58,7 @@ async fn mixed_spawn_consume_concurrent() -> DynResult
 
 	assert!( handle .await.is_ok() );
 	assert!( handle2.await.is_ok() );
-	nursery.stop();
+	drop(nursery);
 
 	let sum = output.fold( 0, |acc, x| async move { acc + x } ).await;
 
