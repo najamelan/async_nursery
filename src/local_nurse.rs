@@ -20,6 +20,66 @@ pub trait LocalNurseExt<Out: 'static> : LocalNurse<Out>
 }
 
 
+impl<T, Out> LocalNurse<Out> for &T
+
+	where T  : LocalNurse<Out> + ?Sized ,
+	      Out: 'static                  ,
+{
+	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(*self).nurse_local_obj( future )
+	}
+}
+
+
+impl<T, Out> LocalNurse<Out> for &mut T
+
+	where T  : LocalNurse<Out> + ?Sized ,
+	      Out: 'static                  ,
+{
+	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_local_obj( future )
+	}
+}
+
+
+impl<T, Out> LocalNurse<Out> for Box<T>
+
+	where T  : LocalNurse<Out> + ?Sized ,
+	      Out: 'static                  ,
+{
+	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_local_obj( future )
+	}
+}
+
+
+impl<T, Out> LocalNurse<Out> for Arc<T>
+
+	where T  : LocalNurse<Out> + ?Sized ,
+	      Out: 'static                  ,
+{
+	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_local_obj( future )
+	}
+}
+
+
+impl<T, Out> LocalNurse<Out> for Rc<T>
+
+	where T  : LocalNurse<Out> + ?Sized ,
+	      Out: 'static                  ,
+{
+	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_local_obj( future )
+	}
+}
+
+
 impl<T, Out> LocalNurseExt<Out> for T
 
 	where T  : LocalNurse<Out> + ?Sized ,

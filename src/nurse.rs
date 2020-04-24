@@ -24,6 +24,66 @@ pub trait NurseExt<Out: 'static + Send> : Nurse<Out>
 }
 
 
+impl<T, Out> Nurse<Out> for &T
+
+	where T  : Nurse<Out> + ?Sized ,
+	      Out: 'static + Send      ,
+{
+	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(*self).nurse_obj( future )
+	}
+}
+
+
+impl<T, Out> Nurse<Out> for &mut T
+
+	where T  : Nurse<Out> + ?Sized ,
+	      Out: 'static + Send      ,
+{
+	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_obj( future )
+	}
+}
+
+
+impl<T, Out> Nurse<Out> for Box<T>
+
+	where T  : Nurse<Out> + ?Sized ,
+	      Out: 'static + Send      ,
+{
+	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_obj( future )
+	}
+}
+
+
+impl<T, Out> Nurse<Out> for Arc<T>
+
+	where T  : Nurse<Out> + ?Sized ,
+	      Out: 'static + Send      ,
+{
+	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_obj( future )
+	}
+}
+
+
+impl<T, Out> Nurse<Out> for Rc<T>
+
+	where T  : Nurse<Out> + ?Sized ,
+	      Out: 'static + Send      ,
+{
+	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
+	{
+		(**self).nurse_obj( future )
+	}
+}
+
+
 impl<T, Out> NurseExt<Out> for T
 
 	where T  : Nurse<Out> + ?Sized ,

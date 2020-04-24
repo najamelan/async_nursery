@@ -56,8 +56,8 @@ mod import
 		futures          :: { ready, stream::Fuse, Stream, Sink, StreamExt                          } ,
 		futures::channel :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
 		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
-		futures          :: { stream::FuturesUnordered, FutureExt                                   } ,
-		std              :: { task::{ Context, Poll }, pin::Pin, future::Future                     } ,
+		futures          :: { stream::FuturesUnordered                                              } ,
+		std              :: { task::{ Context, Poll }, pin::Pin, future::Future, sync::Arc, rc::Rc  } ,
 		log              :: { *                                                                     } ,
 		thiserror        :: { *                                                                     } ,
 	};
