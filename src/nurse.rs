@@ -91,7 +91,7 @@ impl<T, Out> NurseExt<Out> for T
 {
 	fn nurse( &self, future: impl Future<Output = Out> + Send + 'static ) -> Result<(), NurseErr>
 	{
-		self.nurse_obj( FutureObj::new( future.boxed() ) )
+		self.nurse_obj( FutureObj::new( Box::new(future) ) )
 	}
 }
 

@@ -87,7 +87,7 @@ impl<T, Out> LocalNurseExt<Out> for T
 {
 	fn nurse_local( &self, future: impl Future<Output = Out> + 'static ) -> Result<(), NurseErr>
 	{
-		self.nurse_local_obj( LocalFutureObj::new( future.boxed_local() ) )
+		self.nurse_local_obj( LocalFutureObj::new( Box::new(future) ) )
 	}
 }
 
