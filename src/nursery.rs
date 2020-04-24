@@ -3,7 +3,7 @@ use crate:: { import::*, Nurse, LocalNurse, NurseErr, NurseryStream };
 
 /// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
 ///
-#[ derive( Clone, Debug ) ]
+#[ derive( Debug ) ]
 //
 pub struct Nursery<S, Out>
 {
@@ -12,27 +12,22 @@ pub struct Nursery<S, Out>
 }
 
 
+impl<S, Out> Clone for Nursery<S, Out> where S: Clone
+{
+	fn clone( &self ) -> Self
+	{
+		Self
+		{
+			spawner: self.spawner.clone() ,
+			tx     : self.tx     .clone() ,
+		}
+	}
+}
+
+
 
 impl<S, Out> Nursery<S, Out>
 {
-
-	/// Create a new nursery.
-	///
-	pub fn new( spawner: S ) -> Result< (Self, NurseryStream<Out>), SpawnError >
-
-		where S: SpawnHandle<()>, Out: 'static + Send
-	{
-		let (tx, rx) = unbounded();
-
-		Ok
-		((
-			Self{ spawner, tx }       ,
-			NurseryStream::new( rx )? ,
-		))
-	}
-
-
-
 	/// Create a new nursery.
 	///
 	pub fn new_local( spawner: S ) -> Result< (Self, NurseryStream<Out>), SpawnError >
