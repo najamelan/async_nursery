@@ -84,3 +84,28 @@ impl<Out> Stream for NurseryStream<Out>
 		(self.unordered.size_hint().0, None)
 	}
 }
+
+
+
+impl<Out> Future for NurseryStream<Out>
+
+	where Out: 'static
+
+{
+	type Output = ();
+
+	fn poll( mut self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Self::Output>
+	{
+		// loop in the case we get an item. Just keep calling until Pending or Done.
+		//
+		loop
+		{
+			if ready!( self.as_mut().poll_next(cx) ).is_none()
+			{
+				trace!( "poll: ready" );
+				return Poll::Ready(())
+			}
+		}
+
+	}
+}
