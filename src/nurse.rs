@@ -31,7 +31,7 @@ impl<T, Out> Nurse<Out> for &T
 {
 	fn nurse_obj( &self, future: FutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
-		(*self).nurse_obj( future )
+		(**self).nurse_obj( future )
 	}
 }
 

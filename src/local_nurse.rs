@@ -27,7 +27,7 @@ impl<T, Out> LocalNurse<Out> for &T
 {
 	fn nurse_local_obj( &self, future: LocalFutureObj<'static, Out> ) -> Result<(), NurseErr>
 	{
-		(*self).nurse_local_obj( future )
+		(**self).nurse_local_obj( future )
 	}
 }
 
