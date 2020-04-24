@@ -30,17 +30,16 @@ impl<S, Out> Nursery<S, Out>
 {
 	/// Create a new nursery.
 	///
-	pub fn new_local( spawner: S ) -> Result< (Self, NurseryStream<Out>), SpawnError >
+	pub fn new( spawner: S ) -> (Self, NurseryStream<Out>)
 
-		where S: LocalSpawnHandle<()>, Out: 'static
+		where Out: 'static
 	{
 		let (tx, rx) = unbounded();
 
-		Ok
-		((
-			Self{ spawner, tx }       ,
-			NurseryStream::new( rx )? ,
-		))
+		(
+			Self{ spawner, tx }      ,
+			NurseryStream::new( rx ) ,
+		)
 	}
 
 

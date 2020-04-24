@@ -16,13 +16,13 @@ impl<Out> NurseryStream<Out>
 {
 	/// Create a new nursery.
 	///
-	pub fn new( rx: UnboundedReceiver<JoinHandle<Out>> ) -> Result< Self, SpawnError >
+	pub fn new( rx: UnboundedReceiver<JoinHandle<Out>> ) -> Self
 
 		where Out: 'static
 	{
 		let unordered = FuturesUnordered::new();
 
-		Ok( Self{ unordered, rx: rx.fuse() } )
+		Self{ unordered, rx: rx.fuse() }
 	}
 }
 
