@@ -74,7 +74,9 @@ impl<Out> Stream for NurseryStream<Out>
 	}
 
 
-	/// This can deadlock!
+	/// A hint of the number of tasks currently being awaited. There is no upper bound,
+	/// because we don't keep track of the tasks that are in the channel between the `Nursery` and
+	/// the `NurseryStream`.
 	//
 	fn size_hint( &self ) -> (usize, Option<usize>)
 	{
