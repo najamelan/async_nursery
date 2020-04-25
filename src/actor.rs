@@ -1,7 +1,7 @@
 use
 {
-	crate   :: { import::*, Nursery, NurseExt } ,
-	thespis :: { *                            } ,
+	crate   :: { import::*, Nursery, NurseExt, NurseErr } ,
+	thespis :: { *                                      } ,
 };
 
 
@@ -36,7 +36,7 @@ impl<Fut> Message for NurseTask<Fut>
 	where Fut: Future + 'static + Send
 
 {
-	type Return = Result<(), SpawnError>;
+	type Return = Result<(), NurseErr>;
 }
 
 
@@ -48,7 +48,7 @@ impl<S, Fut> Handler< NurseTask<Fut> > for Nursery<S, Fut::Output>
 	      Fut::Output: 'static + Send,
 
 {
-	#[async_fn] fn handle( &mut self, msg: NurseTask<Fut> ) -> Result<(), SpawnError>
+	#[async_fn] fn handle( &mut self, msg: NurseTask<Fut> ) -> Result<(), NurseErr>
 	{
 		self.nurse( msg.task )
 	}
