@@ -36,7 +36,7 @@ impl<Out> Stream for NurseryStream<Out>
 
 	fn poll_next( mut self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Option<Self::Item>>
 	{
-		debug!( "poll_next called" );
+		trace!( "poll_next called" );
 
 		let mut closed = false;
 
@@ -50,12 +50,14 @@ impl<Out> Stream for NurseryStream<Out>
 
 				Poll::Ready(None) =>
 				{
+					trace!( "poll_next: closed = true" );
 					closed = true;
 					break;
 				}
 
 				Poll::Ready( Some(handle) ) =>
 				{
+					trace!( "poll_next: push a handle" );
 					self.unordered.push( handle );
 				}
 			}
@@ -65,11 +67,24 @@ impl<Out> Stream for NurseryStream<Out>
 		{
 			None        =>
 			{
-				if closed { Poll::Ready(None) }
-				else      { Poll::Pending     }
+				if closed
+				{
+					trace!( "poll_next: return none" );
+					Poll::Ready(None)
+				}
+
+				else
+				{
+					trace!( "poll_next: return pending" );
+					Poll::Pending
+				}
 			}
 
-			out => Poll::Ready(out),
+			out =>
+			{
+				trace!( "poll_next: ready out" );
+				Poll::Ready(out)
+			}
 		}
 	}
 
