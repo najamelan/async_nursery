@@ -138,7 +138,7 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		self.tx.close_channel();
+		self.close_nursery();
 
 		Poll::Ready( Ok(()) )
 	}
@@ -179,7 +179,7 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
-		self.tx.close_channel();
+		self.close_nursery();
 
 		Poll::Ready( Ok(()) )
 	}
