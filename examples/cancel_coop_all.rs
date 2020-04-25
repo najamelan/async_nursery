@@ -4,15 +4,15 @@
 //!
 //! Expected output in 3 seconds:
 //!
-//! $ cargo run --example resource_cancel_coop_all
+//! $ cargo run --example cancel_coop_all
 //!
-//! INFO [resource_cancel_coop_all] nursery created
-//! INFO [resource_cancel_coop_all] spawned slow: 1
-//! INFO [resource_cancel_coop_all] spawned slow: 2
-//! INFO [resource_cancel_coop_all] canceling
-//! INFO [resource_cancel_coop_all] resource_cancel_coop_all doing it's cleanup before cancelling
-//! INFO [resource_cancel_coop_all] ended slow: 1
-//! INFO [resource_cancel_coop_all] ended slow: 2
+//! INFO [cancel_coop_all] nursery created
+//! INFO [cancel_coop_all] spawned slow: 1
+//! INFO [cancel_coop_all] spawned slow: 2
+//! INFO [cancel_coop_all] canceling
+//! INFO [cancel_coop_all] cancel_coop_all doing it's cleanup before cancelling
+//! INFO [cancel_coop_all] ended slow: 1
+//! INFO [cancel_coop_all] ended slow: 2
 //!
 mod common;
 
@@ -28,9 +28,10 @@ use
 
 
 
-async fn resource_cancel_coop_all( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> DynResult<()>
+async fn cancel_coop_all( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> DynResult<()>
 {
-	// We will stop
+	// We will stop spawning new subtasks when the nursery is closed.
+	//
 	for i in 1..=amount
 	{
 		match nursery.nurse( slow(i) )
@@ -41,14 +42,14 @@ async fn resource_cancel_coop_all( amount: usize, nursery: impl Nurse<DynResult<
 			{
 				assert!(matches!( e, NurseErr::Closed ) );
 
-				info!( "resource_cancel_coop_all doing it's cleanup before cancelling" );
+				info!( "cancel_coop_all doing it's cleanup before cancelling" );
 
 				return Ok(());
 			}
 		}
 	}
 
-	info!( "end of resource_cancel_coop_all." );
+	info!( "end of cancel_coop_all." );
 	Ok(())
 }
 
@@ -78,10 +79,10 @@ async fn main() -> DynResult<()>
 	let (nursery, output) = Nursery::new( AsyncStd );
 	info!( "nursery created" );
 
-	// resource_cancel_coop_all will be able to spawn tasks that outlive it's own lifetime,
+	// cancel_coop_all will be able to spawn tasks that outlive it's own lifetime,
 	// and if its async, we can just spawn it on the nursery as well.
 	//
-	nursery.nurse( resource_cancel_coop_all( 5, nursery.clone() ) )?;
+	nursery.nurse( cancel_coop_all( 5, nursery.clone() ) )?;
 
 	Delay::new( Duration::from_secs(2) ).await;
 

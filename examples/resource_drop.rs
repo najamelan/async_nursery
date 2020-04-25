@@ -31,7 +31,7 @@ use
 
 
 
-async fn resource_drop( senders: Vec<mpsc::UnboundedSender<()>>) -> DynResult<()>
+async fn resource_drop( senders: Vec<mpsc::UnboundedSender<()>> ) -> DynResult<()>
 {
 	let (nursery, _output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 

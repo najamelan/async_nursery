@@ -1,22 +1,22 @@
-//! Pass a &Nursery to a function.
-//! You should see from the output that the slow tasks end after resource_ref has ended.
+//! By passing a nursery into an async task we spawned, it can spawn other tasks that outlive itself.
+//! You should see from the output that the slow tasks end after subtask_spawn has ended.
 //!
 //! Expected output in 3 seconds:
 //!
-//! $ cargo run --example resource_ref
+//! $ cargo run --example subtask_spawn
 //!
-//! INFO [resource_ref] nursery created
-//! INFO [resource_ref] spawned slow: 1
-//! INFO [resource_ref] spawned slow: 2
-//! INFO [resource_ref] spawned slow: 3
-//! INFO [resource_ref] spawned slow: 4
-//! INFO [resource_ref] spawned slow: 5
-//! INFO [resource_ref] end of resource_ref.
-//! INFO [resource_ref] ended slow: 1
-//! INFO [resource_ref] ended slow: 3
-//! INFO [resource_ref] ended slow: 2
-//! INFO [resource_ref] ended slow: 4
-//! INFO [resource_ref] ended slow: 5
+//! INFO [subtask_spawn] nursery created
+//! INFO [subtask_spawn] spawned slow: 2
+//! INFO [subtask_spawn] end of subtask_spawn.
+//! INFO [subtask_spawn] spawned slow: 5
+//! INFO [subtask_spawn] spawned slow: 1
+//! INFO [subtask_spawn] spawned slow: 4
+//! INFO [subtask_spawn] spawned slow: 3
+//! INFO [subtask_spawn] ended slow: 1
+//! INFO [subtask_spawn] ended slow: 5
+//! INFO [subtask_spawn] ended slow: 2
+//! INFO [subtask_spawn] ended slow: 3
+//! INFO [subtask_spawn] ended slow: 4
 //!
 mod common;
 
@@ -32,14 +32,14 @@ use
 
 
 
-fn resource_ref( amount: usize, nursery: impl Nurse<()> ) -> DynResult<()>
+async fn subtask_spawn( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> DynResult<()>
 {
 	for i in 1..=amount
 	{
 		nursery.nurse( slow(i) )?;
 	}
 
-	info!( "end of resource_ref." );
+	info!( "end of subtask_spawn." );
 	Ok(())
 }
 
@@ -47,13 +47,15 @@ fn resource_ref( amount: usize, nursery: impl Nurse<()> ) -> DynResult<()>
 
 // This wants to linger around for an entire minute...zzz
 //
-async fn slow( i: usize )
+async fn slow( i: usize ) -> DynResult<()>
 {
 	info!( "spawned slow: {}", i );
 
 	Delay::new( Duration::from_secs(3) ).await;
 
 	info!( "ended slow: {}", i );
+
+	Ok(())
 }
 
 
@@ -66,10 +68,10 @@ async fn main() -> DynResult<()>
 
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 
-	// resource_ref will be able to spawn tasks that outlive it's own lifetime,
+	// subtask_spawn will be able to spawn tasks that outlive it's own lifetime,
 	// and if its async, we can just spawn it on the nursery as well.
 	//
-	resource_ref( 5, &nursery )?;
+	nursery.nurse( subtask_spawn(5, nursery.clone()) )?;
 
 	// This is necessary. Since we could keep spawning tasks even after starting to poll
 	// the output, it can't know that we are done, unless we drop all senders or call

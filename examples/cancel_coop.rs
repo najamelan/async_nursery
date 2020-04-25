@@ -21,21 +21,21 @@
 //!
 //! Expected output in 3 seconds:
 //!
-//! $ cargo run --example resource_cancel_coop
+//! $ cargo run --example cancel_coop
 //!
-//! INFO [resource_cancel_coop] nursery created
-//! INFO [resource_cancel_coop] spawned slow: 1
-//! INFO [resource_cancel_coop] spawned slow: 2
-//! INFO [resource_cancel_coop] spawned slow: 3
-//! INFO [resource_cancel_coop] spawned slow: 5
-//! INFO [resource_cancel_coop] spawned slow: 4
-//! INFO [resource_cancel_coop] end of resource_cancel_coop.
-//! INFO [resource_cancel_coop] ended slow: 1
-//! INFO [resource_cancel_coop] ended slow: 2
-//! INFO [resource_cancel_coop] canceling
-//! INFO [resource_cancel_coop] slow 5 doing cleanup
-//! INFO [resource_cancel_coop] slow 3 doing cleanup
-//! INFO [resource_cancel_coop] slow 4 doing cleanup
+//! INFO [cancel_coop] nursery created
+//! INFO [cancel_coop] spawned slow: 1
+//! INFO [cancel_coop] spawned slow: 2
+//! INFO [cancel_coop] spawned slow: 3
+//! INFO [cancel_coop] spawned slow: 5
+//! INFO [cancel_coop] spawned slow: 4
+//! INFO [cancel_coop] end of cancel_coop.
+//! INFO [cancel_coop] ended slow: 1
+//! INFO [cancel_coop] ended slow: 2
+//! INFO [cancel_coop] canceling
+//! INFO [cancel_coop] slow 5 doing cleanup
+//! INFO [cancel_coop] slow 3 doing cleanup
+//! INFO [cancel_coop] slow 4 doing cleanup
 //!
 mod common;
 
@@ -53,7 +53,7 @@ use
 
 
 
-fn resource_cancel_coop( amount: usize, nursery: impl Nurse<()> ) -> DynResult<Pharos<()>>
+fn cancel_coop( amount: usize, nursery: impl Nurse<()> ) -> DynResult<Pharos<()>>
 {
 	// Because of limitations in the pharos API needs to be available where spawning to be
 	// able to observe. Events is not Clone.
@@ -65,7 +65,7 @@ fn resource_cancel_coop( amount: usize, nursery: impl Nurse<()> ) -> DynResult<P
 		nursery.nurse( slow(i, pharos.observe( ObserveConfig::default() )? ) )?;
 	}
 
-	info!( "end of resource_cancel_coop." );
+	info!( "end of cancel_coop." );
 	Ok(pharos)
 }
 
@@ -118,10 +118,10 @@ async fn main() -> DynResult<()>
 
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 
-	// resource_cancel_coop will be able to spawn tasks that outlive it's own lifetime,
+	// cancel_coop will be able to spawn tasks that outlive it's own lifetime,
 	// and if its async, we can just spawn it on the nursery as well.
 	//
-	let mut pharos = resource_cancel_coop( 5, nursery.clone() )?;
+	let mut pharos = cancel_coop( 5, nursery.clone() )?;
 
 	// cancel after 3 seconds.
 	//
