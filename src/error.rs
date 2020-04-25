@@ -40,3 +40,13 @@ impl<T> From< TrySendError<T> > for NurseErr
 	}
 }
 
+
+
+impl From< NurseErr > for Box<dyn std::any::Any + Send>
+{
+	fn from( err: NurseErr ) -> Box<dyn std::any::Any + Send>
+	{
+		Box::new( err )
+	}
+}
+
