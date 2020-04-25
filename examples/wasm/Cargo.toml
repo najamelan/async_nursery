@@ -1,0 +1,32 @@
+# Auto-generated from "Cargo.yml"
+[dependencies]
+console_log = "^0.1"
+futures = "^0.3"
+log = "^0.4"
+wasm-bindgen = "^0.2"
+wasm-bindgen-futures = "^0.4"
+
+[dependencies.async_executors]
+features = ["bindgen", "spawn_handle"]
+path = "../../../async_executors"
+
+[dependencies.async_nursery]
+path = "../.."
+
+[dependencies.futures-timer]
+features = ["wasm-bindgen"]
+version = "^3"
+
+[dependencies.web-sys]
+features = ["console", "Document", "Element", "HtmlElement", "Node", "Window"]
+version = "^0.3"
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/entrypoint.rs"
+
+[package]
+authors = ["Naja Melan <najamelan@autistici.org>"]
+edition = "2018"
+name = "async_nursery_wasm_example"
+version = "0.1.0"

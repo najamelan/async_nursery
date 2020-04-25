@@ -8,6 +8,7 @@ package:
   # - run cargo clippy
   # - recheck log statements (informative, none left that were just for development, ...)
   # - Update CHANGELOG.md.
+  # - Update versio
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
   # - verify CI result
   # - run cargo test on dependent crates
@@ -52,9 +53,9 @@ dependencies:
   # Means we use types from these crates in our public API.
   #
   futures        : { version: ^0.3 }
-  async_executors: { version: ^0.2, features: [ spawn_handle ] }
+  async_executors: { path: ../async_executors, features: [ spawn_handle ] }
   thespis: { path: ../thespis/thespis, optional: true }
-  log         : ^0.4
+  log            : ^0.4
 
   # Private dependencies
   #
@@ -64,12 +65,16 @@ dependencies:
 
 dev-dependencies:
 
-  async_executors: { version: ^0.2, features: [ async_std, tokio_ct, spawn_handle ] }
-  async-std : { version: ^1, features: [ attributes ] }
-  pretty_assertions   : ^0.6
-  flexi_logger: ^0.15
-  loom: ^0.3
-  tokio: { version: ^0.2, features: [ sync ] }
+  async_executors   : { path: ../async_executors, features: [ async_std, tokio_ct, spawn_handle ] }
+  async-std         : { version: ^1, features: [ attributes ] }
+  pretty_assertions : ^0.6
+  flexi_logger      : ^0.15
+  loom              : ^0.3
+  tokio             : { version: ^0.2, features: [ sync ] }
+  futures-timer     : ^3
+  rand              : ^0.7
+  indicatif         : ^0.14
+  pharos            : ^0.4
 
 build-dependencies:
 

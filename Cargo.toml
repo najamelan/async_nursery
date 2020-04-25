@@ -16,7 +16,7 @@ thiserror = "^1"
 
 [dependencies.async_executors]
 features = ["spawn_handle"]
-version = "^0.2"
+path = "../async_executors"
 
 [dependencies.futures]
 version = "^0.3"
@@ -27,8 +27,12 @@ path = "../thespis/thespis"
 
 [dev-dependencies]
 flexi_logger = "^0.15"
+futures-timer = "^3"
+indicatif = "^0.14"
 loom = "^0.3"
+pharos = "^0.4"
 pretty_assertions = "^0.6"
+rand = "^0.7"
 
 [dev-dependencies.async-std]
 features = ["attributes"]
@@ -36,7 +40,7 @@ version = "^1"
 
 [dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "spawn_handle"]
-version = "^0.2"
+path = "../async_executors"
 
 [dev-dependencies.tokio]
 features = ["sync"]
