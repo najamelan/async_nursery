@@ -16,7 +16,7 @@ thiserror = "^1"
 
 [dependencies.async_executors]
 features = ["spawn_handle"]
-path = "../async_executors"
+version = "^0.2"
 
 [dependencies.futures]
 version = "^0.3"
@@ -40,7 +40,7 @@ version = "^1"
 
 [dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "spawn_handle"]
-path = "../async_executors"
+version = "^0.2"
 
 [dev-dependencies.tokio]
 features = ["sync"]

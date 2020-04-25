@@ -8,7 +8,7 @@ wasm-bindgen-futures = "^0.4"
 
 [dependencies.async_executors]
 features = ["bindgen", "spawn_handle"]
-path = "../../../async_executors"
+version = "^0.2"
 
 [dependencies.async_nursery]
 path = "../.."

@@ -53,7 +53,7 @@ dependencies:
   # Means we use types from these crates in our public API.
   #
   futures        : { version: ^0.3 }
-  async_executors: { path: ../async_executors, features: [ spawn_handle ] }
+  async_executors: { version: ^0.2, features: [ spawn_handle ] }
   thespis: { path: ../thespis/thespis, optional: true }
   log            : ^0.4
 
@@ -65,7 +65,7 @@ dependencies:
 
 dev-dependencies:
 
-  async_executors   : { path: ../async_executors, features: [ async_std, tokio_ct, spawn_handle ] }
+  async_executors   : { version: ^0.2, features: [ async_std, tokio_ct, spawn_handle ] }
   async-std         : { version: ^1, features: [ attributes ] }
   pretty_assertions : ^0.6
   flexi_logger      : ^0.15

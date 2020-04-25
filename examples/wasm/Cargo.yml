@@ -14,7 +14,7 @@ lib:
 
 dependencies:
 
-  async_executors   : { path: ../../../async_executors, features: [ bindgen, spawn_handle ] }
+  async_executors   : { version: ^0.2, features: [ bindgen, spawn_handle ] }
   async_nursery     : { path: ../.. }
   futures-timer     : { version: ^3, features: [ wasm-bindgen ] }
 
