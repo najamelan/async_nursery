@@ -1,10 +1,18 @@
 # TODO
 
+## Tests
+
+- check code coverage and add tests.
+- loom tests.
+- test what happens if spawner is not 'static
+- verify drop behavior of futures unordered
+
+## Features
+
 - add timeout support.
 - consider being channel agnostic?
-- test what happens if spawner is not 'static
-- thorough use case analysis and turn those into tests
-- loom tests.
+- cooperative canceling
+
 
 - what about restart? does FuturesUnordered support polling after it has ended?
 
@@ -13,6 +21,4 @@
 - what happens when people use try_collect. The TryCollect from futures stops polling as soon as an error happens, but the nursery shouldn't have any
   orphaned tasks that keep running after the stream ends...
 
-- cooperative canceling
 
-- verify drop behavior of futures unordered
