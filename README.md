@@ -101,8 +101,8 @@ There is an extensive list of examples for all kinds of patterns of using _async
 ```rust
 use
 {
-   async_nursery   :: { Nursery, Nurse } ,
-   async_executors :: { AsyncStd       } ,
+   async_nursery   :: { Nursery, NurseExt } ,
+   async_executors :: { AsyncStd          } ,
 };
 
 pub type DynResult<T> = Result<T, Box< dyn std::error::Error + Send + Sync + 'static >>;
