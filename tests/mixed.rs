@@ -3,6 +3,8 @@
 // ✔ Mix spawning and consuming.
 // ✔ Mix spawning and consuming in concurrent tasks.
 //
+#![ cfg(not( target_arch = "wasm32" )) ]
+
 mod common;
 
 use common::{ import::*, DynResult };
@@ -13,9 +15,9 @@ use common::{ import::*, DynResult };
 //
 #[ async_std::test ]
 //
-async fn mixed_spawn_consume() -> DynResult
+async fn mixed_spawn_consume() -> DynResult<()>
 {
-	let (nursery, mut output) = Nursery::new( AsyncStd )?;
+	let (nursery, mut output) = Nursery::new( AsyncStd );
 	let mut accu    = 0;
 
 	nursery.nurse( async { 5 + 5 } )?;
@@ -37,9 +39,9 @@ async fn mixed_spawn_consume() -> DynResult
 //
 #[ async_std::test ]
 //
-async fn mixed_spawn_consume_concurrent() -> DynResult
+async fn mixed_spawn_consume_concurrent() -> DynResult<()>
 {
-	async fn spawner( nursery: Nursery<AsyncStd, usize> ) -> DynResult
+	async fn spawner( nursery: Nursery<AsyncStd, usize> ) -> DynResult<()>
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 
@@ -47,7 +49,7 @@ async fn mixed_spawn_consume_concurrent() -> DynResult
 	}
 
 
-	let (nursery, output) = Nursery::new( AsyncStd )?;
+	let (nursery, output) = Nursery::new( AsyncStd );
 
 	let handle  = AsyncStd.spawn_handle( spawner( nursery.clone() ) )?;
 	let handle2 = AsyncStd.spawn_handle( spawner( nursery.clone() ) )?;
