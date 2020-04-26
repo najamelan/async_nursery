@@ -1,6 +1,6 @@
 use crate::{ import::*, NurseErr };
 
-/// Same as [`Nurse`] but doesn't require the futures to be [`Send`].
+/// Same as [`Nurse`](crate::Nurse) but doesn't require the futures to be [`Send`].
 //
 pub trait LocalNurse<Out: 'static>
 {

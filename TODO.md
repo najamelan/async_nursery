@@ -1,5 +1,6 @@
 # TODO
 
+- add timeout support.
 - consider being channel agnostic?
 - test what happens if spawner is not 'static
 - thorough use case analysis and turn those into tests
