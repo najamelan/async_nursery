@@ -21,10 +21,6 @@ version = "^0.2"
 [dependencies.futures]
 version = "^0.3"
 
-[dependencies.thespis]
-optional = true
-path = "../thespis/thespis"
-
 [dev-dependencies]
 futures-timer = "^3"
 pretty_assertions = "^0.6"

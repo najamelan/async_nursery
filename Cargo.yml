@@ -58,7 +58,6 @@ dependencies:
   #
   futures        : { version: ^0.3 }
   async_executors: { version: ^0.2, features: [ spawn_handle ] }
-  thespis: { path: ../thespis/thespis, optional: true }
   log            : ^0.4
 
   # Private dependencies

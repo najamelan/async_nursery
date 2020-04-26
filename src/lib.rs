@@ -41,10 +41,6 @@ pub use
 	local_nurse    :: * ,
 };
 
-#[ cfg( feature = "thespis" ) ] mod actor;
-#[ cfg( feature = "thespis" ) ] pub use actor::*;
-
-
 
 // External dependencies
 //
