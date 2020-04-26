@@ -36,8 +36,6 @@ impl<Out> Stream for NurseryStream<Out>
 
 	fn poll_next( mut self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Option<Self::Item>>
 	{
-		trace!( "poll_next called" );
-
 		let mut closed = false;
 
 		// Try to get as many JoinHandles as we can to put them in FuturesUnordered.
@@ -50,14 +48,12 @@ impl<Out> Stream for NurseryStream<Out>
 
 				Poll::Ready(None) =>
 				{
-					trace!( "poll_next: closed = true" );
 					closed = true;
 					break;
 				}
 
 				Poll::Ready( Some(handle) ) =>
 				{
-					trace!( "poll_next: push a handle" );
 					self.unordered.push( handle );
 				}
 			}
@@ -69,20 +65,17 @@ impl<Out> Stream for NurseryStream<Out>
 			{
 				if closed
 				{
-					trace!( "poll_next: return none" );
 					Poll::Ready(None)
 				}
 
 				else
 				{
-					trace!( "poll_next: return pending" );
 					Poll::Pending
 				}
 			}
 
 			out =>
 			{
-				trace!( "poll_next: ready out" );
 				Poll::Ready(out)
 			}
 		}
@@ -119,7 +112,6 @@ impl<Out> Future for NurseryStream<Out>
 		{
 			if ready!( self.as_mut().poll_next(cx) ).is_none()
 			{
-				trace!( "poll: ready" );
 				return Poll::Ready(())
 			}
 		}

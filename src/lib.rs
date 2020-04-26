@@ -54,7 +54,6 @@ mod import
 		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
 		futures          :: { stream::FuturesUnordered                                              } ,
 		std              :: { task::{ Context, Poll }, pin::Pin, future::Future, sync::Arc, rc::Rc  } ,
-		log              :: { *                                                                     } ,
 		thiserror        :: { *                                                                     } ,
 	};
 }

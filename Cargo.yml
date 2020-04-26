@@ -8,7 +8,6 @@ package:
   # - run cargo clippy
   # - recheck log statements (informative, none left that were just for development, ...)
   # - Update CHANGELOG.md.
-  # - Update versio
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
   # - verify CI result
   # - run cargo test on dependent crates
@@ -23,11 +22,11 @@ package:
   documentation : https://docs.rs/async_nursery
   repository    : https://github.com/najamelan/async_nursery
   readme        : README.md
-  keywords      : []
-  categories    : []
+  keywords      : [ async, executor, futures, structured-concurrency ]
+  categories    : [ asynchronous, concurrency ]
   license       : Unlicense
   edition       : "2018"
-  exclude       : [ benches, examples, tests ]
+  exclude       : []
 
   metadata:
     docs:
@@ -38,7 +37,7 @@ package:
 
 badges:
 
-  maintenance : { status     : actively-developed       }
+  maintenance : { status     : actively-developed      }
   travis-ci   : { repository : najamelan/async_nursery }
 
 
@@ -58,18 +57,16 @@ dependencies:
   #
   futures        : { version: ^0.3 }
   async_executors: { version: ^0.2, features: [ spawn_handle ] }
-  log            : ^0.4
 
   # Private dependencies
   #
-  parking_lot : ^0.10
   thiserror   : ^1
 
 
 dev-dependencies:
 
   async_executors   : { version: ^0.2, features: [ spawn_handle ] }
-  pretty_assertions : ^0.6
+  # pretty_assertions : ^0.6
   # loom              : ^0.3
   tokio             : { version: ^0.2, features: [ sync ] }
   futures-timer     : ^3
@@ -86,6 +83,7 @@ target:
       async-std      : { version: ^1, features: [ attributes ] }
       flexi_logger   : ^0.15
       indicatif      : ^0.14
+      log            : ^0.4
 
 
   'cfg( target_arch = "wasm32" )':

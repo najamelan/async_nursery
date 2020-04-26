@@ -10,8 +10,6 @@ repository = "najamelan/async_nursery"
 rustc_version = "^0.2"
 
 [dependencies]
-log = "^0.4"
-parking_lot = "^0.10"
 thiserror = "^1"
 
 [dependencies.async_executors]
@@ -23,7 +21,6 @@ version = "^0.3"
 
 [dev-dependencies]
 futures-timer = "^3"
-pretty_assertions = "^0.6"
 rand = "^0.7"
 
 [dev-dependencies.async_executors]
@@ -96,12 +93,12 @@ not_wasm = []
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
-categories = []
+categories = ["asynchronous", "concurrency"]
 description = "UPDATE ME"
 documentation = "https://docs.rs/async_nursery"
 edition = "2018"
 exclude = ["benches", "examples", "tests"]
-keywords = []
+keywords = ["async", "executor", "futures", "structured-concurrency"]
 license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
@@ -131,6 +128,7 @@ version = "^3"
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies]
 flexi_logger = "^0.15"
 indicatif = "^0.14"
+log = "^0.4"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]
 features = ["attributes"]
