@@ -26,27 +26,77 @@ optional = true
 path = "../thespis/thespis"
 
 [dev-dependencies]
-flexi_logger = "^0.15"
 futures-timer = "^3"
-indicatif = "^0.14"
-loom = "^0.3"
-pharos = "^0.4"
 pretty_assertions = "^0.6"
 rand = "^0.7"
 
-[dev-dependencies.async-std]
-features = ["attributes"]
-version = "^1"
-
 [dev-dependencies.async_executors]
-features = ["async_std", "tokio_ct", "spawn_handle"]
+features = ["spawn_handle"]
 version = "^0.2"
 
 [dev-dependencies.tokio]
 features = ["sync"]
 version = "^0.2"
 
+[[example]]
+name = "cancel_coop"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "cancel_coop_all"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "resource_await"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "resource_drop"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "resource_outlive"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "return_catch_unwind"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "return_catch_unwind_all"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "return_error"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "return_progress"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "return_value"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "single_thread"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "subtask_ref"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "subtask_spawn"
+required-features = ["not_wasm"]
+
+[[example]]
+name = "type_bound"
+required-features = ["not_wasm"]
+
 [features]
+default = ["not_wasm"]
+not_wasm = []
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
@@ -67,3 +117,29 @@ version = "0.1.0"
 [package.metadata.docs.rs]
 all-features = true
 targets = []
+
+[target]
+[target."cfg( target_arch = \"wasm32\" )"]
+[target."cfg( target_arch = \"wasm32\" )".dev-dependencies]
+wasm-bindgen-test = "^0.3"
+
+[target."cfg( target_arch = \"wasm32\" )".dev-dependencies.async_executors]
+features = ["bindgen"]
+version = "^0.2"
+
+[target."cfg( target_arch = \"wasm32\" )".dev-dependencies.futures-timer]
+features = ["wasm-bindgen"]
+version = "^3"
+
+[target."cfg(not( target_arch = \"wasm32\" ))"]
+[target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies]
+flexi_logger = "^0.15"
+indicatif = "^0.14"
+
+[target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]
+features = ["attributes"]
+version = "^1"
+
+[target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
+features = ["async_std", "tokio_ct"]
+version = "^0.2"

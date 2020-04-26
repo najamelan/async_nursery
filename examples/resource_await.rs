@@ -42,7 +42,7 @@ async fn resource_await( amount: usize ) -> DynResult<()>
 
 	// This is necessary. Since we could keep spawning tasks even after starting to poll
 	// the output, it can't know that we are done, unless we drop all senders or call
-	// `close_nursery`.
+	// `close_nursery`. If we don't, the await below deadlocks.
 	//
 	drop(nursery);
 

@@ -63,8 +63,6 @@ pub async fn main()
 
 		Expected output in 3 seconds:
 
-		$ cargo run --example resource_outlive
-
 		nursery created
 		spawned slow: 1
 		spawned slow: 2

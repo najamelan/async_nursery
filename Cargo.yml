@@ -44,7 +44,11 @@ badges:
 
 features:
 
+  default: [ not_wasm ]
 
+  # Avoid compiling examples when doing wasm testing.
+  #
+  not_wasm: []
 
 
 dependencies:
@@ -65,23 +69,81 @@ dependencies:
 
 dev-dependencies:
 
-  async_executors   : { version: ^0.2, features: [ async_std, tokio_ct, spawn_handle ] }
-  async-std         : { version: ^1, features: [ attributes ] }
+  async_executors   : { version: ^0.2, features: [ spawn_handle ] }
   pretty_assertions : ^0.6
-  flexi_logger      : ^0.15
-  loom              : ^0.3
+  # loom              : ^0.3
   tokio             : { version: ^0.2, features: [ sync ] }
   futures-timer     : ^3
   rand              : ^0.7
-  indicatif         : ^0.14
-  pharos            : ^0.4
+
+
+target:
+
+  'cfg(not( target_arch = "wasm32" ))':
+
+    dev-dependencies:
+
+      async_executors: { version: ^0.2, features: [ async_std, tokio_ct ] }
+      async-std      : { version: ^1, features: [ attributes ] }
+      flexi_logger   : ^0.15
+      indicatif      : ^0.14
+
+
+  'cfg( target_arch = "wasm32" )':
+
+    dev-dependencies:
+
+      async_executors  : { version: ^0.2, features: [ bindgen ] }
+      futures-timer    : { version: ^3  , features: [ wasm-bindgen ] }
+      wasm-bindgen-test: ^0.3
+
 
 build-dependencies:
 
   rustc_version: ^0.2
 
 
-# patch:
-#   crates-io:
-#     futures: { path: ../RUST/futures-rs/futures }
-#     futures-task: { path: ../RUST/futures-rs/futures-task }
+# Needed to avoid them being compiled when running: wasm-pack test --firefox --headless -- --no-default-features
+example:
+
+  - name             : cancel_coop
+    required-features: [ not_wasm ]
+
+  - name             : cancel_coop_all
+    required-features: [ not_wasm ]
+
+  - name             : resource_await
+    required-features: [ not_wasm ]
+
+  - name             : resource_drop
+    required-features: [ not_wasm ]
+
+  - name             : resource_outlive
+    required-features: [ not_wasm ]
+
+  - name             : return_catch_unwind
+    required-features: [ not_wasm ]
+
+  - name             : return_catch_unwind_all
+    required-features: [ not_wasm ]
+
+  - name             : return_error
+    required-features: [ not_wasm ]
+
+  - name             : return_progress
+    required-features: [ not_wasm ]
+
+  - name             : return_value
+    required-features: [ not_wasm ]
+
+  - name             : single_thread
+    required-features: [ not_wasm ]
+
+  - name             : subtask_ref
+    required-features: [ not_wasm ]
+
+  - name             : subtask_spawn
+    required-features: [ not_wasm ]
+
+  - name             : type_bound
+    required-features: [ not_wasm ]
