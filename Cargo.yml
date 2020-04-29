@@ -101,6 +101,7 @@ build-dependencies:
 
 
 # Needed to avoid them being compiled when running: wasm-pack test --firefox --headless -- --no-default-features
+#
 example:
 
   - name             : cancel_coop

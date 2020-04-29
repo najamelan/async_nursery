@@ -49,7 +49,7 @@ mod import
 	pub(crate) use
 	{
 		async_executors  :: { SpawnHandle, LocalSpawnHandle, JoinHandle                             } ,
-		futures          :: { ready, stream::Fuse, Stream, Sink, StreamExt                          } ,
+		futures          :: { ready, Stream, Sink, future::FusedFuture, stream::FusedStream         } ,
 		futures::channel :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
 		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
 		futures          :: { stream::FuturesUnordered                                              } ,

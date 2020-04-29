@@ -28,13 +28,13 @@ In Rust it is common to propagate errors up the call stack. If you spawn a task 
 
 ## Properties of _async_nursery_:
 
-- Act as spawner.
-- [`NurseryStream`] implements `Stream<Out>` of the results of all the futures it nurses.
-- [`NurseryStream`] implements  `Future<Output=()>` if you just want to wait for everything to finish, but don't care for returned values.
-- Basically manages `JoinHandle`s for you.
+- `Nursery` acts as spawner.
+- `NurseryStream` implements `Stream<Out>` of the results of all the futures it nurses.
+- `NurseryStream` implements  `Future<Output=()>` if you just want to wait for everything to finish, but don't care for returned values.
+- `NurseryStream` basically manages `JoinHandle`s for you.
 - Can be backed by any executor that implements [`SpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.SpawnHandle.html) or [`LocalSpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.LocalSpawnHandle.html).
 - Cancels all running futures on drop.
-- [`Nursery`] implements Sink for [`FutureObj`](https://docs.rs/futures/*/futures/task/struct.FutureObj.html) and/or [`LocalFutureObj`](https://docs.rs/futures/*/futures/task/struct.LocalFutureObj.html).
+- `Nursery` implements Sink for [`FutureObj`](https://docs.rs/futures/*/futures/task/struct.FutureObj.html) and/or [`LocalFutureObj`](https://docs.rs/futures/*/futures/task/struct.LocalFutureObj.html) as well as `Nurse` and `NurseExt`.
 
 ## Missing features
 
@@ -89,10 +89,16 @@ There are no optional features.
 
 ### Security
 
-The crate uses `forbid(unsafe)`, but our but depends on `futures` which has quite some unsafe. There are no security issues I'm aware of specific to using this crate.
+The crate uses `forbid(unsafe)`, but depends on `futures` which has quite some unsafe. There are no security issues I'm aware of specific to using this crate.
 
+
+### Performance
+
+Currently the implementation is simple. Nursery just sends the JoinHandle to NurseryStream over an unbounded channel. This is convenient, because it means `NurseExt::nurse` doesn't have to be async, but it has some overhead compared to using the underlying executor directly. In the future I hope to optimize the implementation.
 
 ## Usage
+
+**Warning**: If ever you wait on the stream to finish, remember it will only finish if there are no Nursery's alive anymore. You must drop the Nursery before awaiting the NurseryStream. If your program deadlocks, this should be the first place to look.
 
 ### Basic example
 

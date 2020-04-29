@@ -44,6 +44,11 @@ async fn return_error() -> DynResult<()>
 	// any spawned task and thus drop all the others when the current function
 	// returns.
 	//
+	// Warning, that last phrase is important. It cancels all tasks when it get's
+	// dropped. Not when try_next stops. I will in this example because we use
+	// the `?` operator to return early and when the function returns the NurseryStream
+	// get's dropped.
+	//
 	while output.try_next().await?.is_some() {};
 
 	unreachable!( "drop Nursery and NurseryStream" );

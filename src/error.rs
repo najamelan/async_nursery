@@ -1,7 +1,7 @@
 use crate::{ import::* };
 
 
-/// The error type for errors happening in _ws_stream_tungstenite_.
+/// The error type for errors happening in _async_nursery_.
 //
 #[ derive( Clone, Copy, PartialEq, Eq, Debug, Error ) ]
 //
@@ -13,7 +13,7 @@ pub enum NurseErr
 	//
 	Spawn,
 
-	/// Failed to send the JoinHandle to the nursery.
+	/// The nursery is closed and no longer accepts new tasks.
 	//
 	#[ error( "The nursery is closed and no longer accepts new tasks." )]
 	//

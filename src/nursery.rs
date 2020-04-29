@@ -1,7 +1,8 @@
 use crate:: { import::*, Nurse, LocalNurse, NurseErr, NurseryStream };
 
 
-/// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
+/// The sender part of the nursery. Wraps an unbounded sender. Can be cloned.
+/// To manage the spawned tasks and await their output, see [`NurseryStream`].
 ///
 #[ derive( Debug ) ]
 //
@@ -28,7 +29,8 @@ impl<S, Out> Clone for Nursery<S, Out> where S: Clone
 
 impl<S, Out> Nursery<S, Out>
 {
-	/// Create a new nursery.
+	/// Create a new nursery. Returns a tuple of the sender part
+	/// and the stream of outputs.
 	///
 	pub fn new( spawner: S ) -> (Self, NurseryStream<Out>)
 
@@ -43,7 +45,9 @@ impl<S, Out> Nursery<S, Out>
 	}
 
 
-	/// Stop this nursery and any clones from accepting any more tasks.
+	/// Stop this nursery and any clones from accepting any more tasks. Calling this or
+	/// dropping all `Nursery` is necessary for the stream impl of `NurseryStream` to end
+	/// and return `None`.
 	//
 	pub fn close_nursery( &self )
 	{
@@ -134,7 +138,8 @@ impl<S, Out> Sink<FutureObj<'static, Out>> for Nursery<S, Out>
 	}
 
 
-	/// This is a no-op. The address can only really close when dropped. Close has no meaning before that.
+	/// This is a no-op. If you want to disconnect, just drop this `Nursery`. If you want to
+	/// close the NurseryStream, call [`Nursery::close_nursery`].
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{
@@ -175,7 +180,8 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 	}
 
 
-	/// This is a no-op. The address can only really close when dropped. Close has no meaning before that.
+	/// This is a no-op. If you want to disconnect, just drop this `Nursery`. If you want to
+	/// close the NurseryStream, call [`Nursery::close_nursery`].
 	//
 	fn poll_close( self: Pin<&mut Self>, _cx: &mut Context<'_> ) -> Poll<Result<(), Self::Error>>
 	{

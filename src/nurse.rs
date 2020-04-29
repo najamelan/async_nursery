@@ -1,9 +1,14 @@
 use crate::{ import::*, NurseErr };
 
 
-/// Implementors provide the possiblity to nurse futures. This means that they
-/// accept futures with the `nurse` method and implement `Stream` over the output
-/// type of the futures.
+/// Implementors provide the possiblity to nurse futures. Technically this means
+/// you can spawn on this object without the tasks having to return `()` but still
+/// you get no [`JoinHandle`](async_executors::JoinHandle).
+///
+/// Semantically this means it will manage the `JoinHandle`s for you.
+///
+/// There is a blanket impl extenstion trait [`NurseExt`] so you can spawn futures
+/// directly without having to create the `FutureObj` yourself.
 //
 pub trait Nurse<Out: 'static + Send>
 {
@@ -13,7 +18,7 @@ pub trait Nurse<Out: 'static + Send>
 }
 
 
-/// Extension trait that allows passing in a future directly. Does the conversion to [`LocalFutureObj`]
+/// Extension trait that allows passing in a future directly. Does the conversion to [`FutureObj`]
 /// for you.
 //
 pub trait NurseExt<Out: 'static + Send> : Nurse<Out>
