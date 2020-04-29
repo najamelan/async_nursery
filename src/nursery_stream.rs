@@ -1,13 +1,17 @@
 use crate:: { import::* };
 
-/// A nursery allows you to spawn futures yet adhere to structured concurrency principles.
+/// Collection of [`JoinHandle`]s of tasks spawned on the nursery. When this is dropped,
+/// all spawned tasks are canceled. You can poll the [`Stream`] implementation on this
+/// to obtain the outputs of your tasks. You can await the [`Future`] implementation if
+/// you don't care about the outputs but just want to wait until all spawned tasks are done.
 ///
 #[ derive( Debug ) ]
 //
 pub struct NurseryStream<Out>
 {
-	rx       : Fuse<UnboundedReceiver<JoinHandle<Out>>> ,
-	unordered: FuturesUnordered<JoinHandle<Out>>        ,
+	rx       : UnboundedReceiver<JoinHandle<Out>> ,
+	unordered: FuturesUnordered<JoinHandle<Out>>  ,
+	rx_closed: bool                               ,
 }
 
 
@@ -16,13 +20,28 @@ impl<Out> NurseryStream<Out>
 {
 	/// Create a new nursery.
 	///
-	pub fn new( rx: UnboundedReceiver<JoinHandle<Out>> ) -> Self
+	pub(crate) fn new( rx: UnboundedReceiver<JoinHandle<Out>> ) -> Self
 
 		where Out: 'static
 	{
 		let unordered = FuturesUnordered::new();
 
-		Self{ unordered, rx: rx.fuse() }
+		Self
+		{
+			unordered         ,
+			rx                ,
+			rx_closed: false  ,
+		}
+	}
+
+
+	/// Close this NurseryStream. Related [`Nursery`](crate::Nursery) will no longer be able to
+	/// spawn. This allows the stream to end. Alternatively you can drop all related
+	/// [`Nursery`](crate::Nursery) or call [`Nursery::close_nursery`](crate::Nursery::close_nursery).
+	///
+	pub fn close_nursery( &mut self )
+	{
+		self.rx.close();
 	}
 }
 
@@ -36,11 +55,9 @@ impl<Out> Stream for NurseryStream<Out>
 
 	fn poll_next( mut self: Pin<&mut Self>, cx: &mut Context<'_> ) -> Poll<Option<Self::Item>>
 	{
-		let mut closed = false;
-
 		// Try to get as many JoinHandles as we can to put them in FuturesUnordered.
 		//
-		loop
+		if !self.rx_closed { loop
 		{
 			match Pin::new( &mut self.as_mut().rx ).poll_next(cx)
 			{
@@ -48,7 +65,7 @@ impl<Out> Stream for NurseryStream<Out>
 
 				Poll::Ready(None) =>
 				{
-					closed = true;
+					self.rx_closed = true;
 					break;
 				}
 
@@ -57,13 +74,13 @@ impl<Out> Stream for NurseryStream<Out>
 					self.unordered.push( handle );
 				}
 			}
-		}
+		}}
 
 		match ready!( Pin::new( &mut self.as_mut().unordered ).poll_next(cx) )
 		{
-			None        =>
+			None =>
 			{
-				if closed
+				if self.rx_closed
 				{
 					Poll::Ready(None)
 				}
@@ -116,5 +133,31 @@ impl<Out> Future for NurseryStream<Out>
 			}
 		}
 
+	}
+}
+
+
+
+impl<Out> FusedFuture for NurseryStream<Out>
+
+	where Out: 'static
+
+{
+	fn is_terminated(&self) -> bool
+	{
+		self.rx_closed && self.unordered.is_terminated()
+	}
+}
+
+
+
+impl<Out> FusedStream for NurseryStream<Out>
+
+	where Out: 'static
+
+{
+	fn is_terminated(&self) -> bool
+	{
+		self.rx_closed && self.unordered.is_terminated()
 	}
 }
