@@ -31,7 +31,7 @@ package:
   documentation : https://docs.rs/async_nursery
   repository    : https://github.com/najamelan/async_nursery
   readme        : README.md
-  keywords      : [ async, executor, futures, structured-concurrency ]
+  keywords      : [ async, executor, futures ]
   categories    : [ asynchronous, concurrency ]
   license       : Unlicense
   edition       : "2018"
