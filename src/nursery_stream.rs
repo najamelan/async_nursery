@@ -39,9 +39,10 @@ impl<Out> NurseryStream<Out>
 	/// spawn. This allows the stream to end. Alternatively you can drop all related
 	/// [`Nursery`](crate::Nursery) or call [`Nursery::close_nursery`](crate::Nursery::close_nursery).
 	///
-	pub fn close_nursery( &mut self )
+	pub fn close_nursery( &mut self ) -> &mut Self
 	{
 		self.rx.close();
+		self
 	}
 }
 
