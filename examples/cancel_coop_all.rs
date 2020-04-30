@@ -76,7 +76,7 @@ async fn main() -> DynResult<()>
 {
 	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
 
-	let (nursery, output) = Nursery::new( AsyncStd );
+	let (nursery, mut output) = Nursery::new( AsyncStd );
 	info!( "nursery created" );
 
 	// cancel_coop_all will be able to spawn tasks that outlive it's own lifetime,
@@ -93,9 +93,10 @@ async fn main() -> DynResult<()>
 	//
 	info!( "canceling" );
 
-	nursery.close_nursery();
-
-	output.await;
+	// Each `Nursery` also has a `close_nursery` method, which will close everything and
+	// prevent other `Nursery`s from spawning.
+	//
+	output.close_nursery().await;
 
 	Ok(())
 }

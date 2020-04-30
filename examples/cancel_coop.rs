@@ -4,7 +4,7 @@
 //! One possible implementation of cooperative cancellation. This just uses an AtomicBool to indicate
 //! that tasks should stop.
 //!
-//! Async drop should also provide a way to do cleanup when canceled.
+//! Async drop should also provide a way to do cleanup when canceled, but doesn't exist yet.
 //!
 //! This shows tasks that wait for an increasing number of seconds up to 5. After 2
 //! seconds we cancel them. So 3, 4 and 5 never complete but return early after cancellation.
@@ -55,9 +55,7 @@ fn cancel_coop( amount: usize, nursery: impl Nurse<()>, cancel: Arc<AtomicBool> 
 
 
 
-// Try to sleep i times, but respect a cancellation request. This particular code
-// is not very realistic. The point of coop cancellation is to do cleanup, but that
-// is not shown here.
+// Try to sleep i times, but respect a cancellation request.
 //
 // NOTE: This is just an example of a coop cancellation mechanism with async_nursery.
 // The function below doesn't do any cleanup. In practice, if you are fine with potentially

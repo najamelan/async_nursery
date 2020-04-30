@@ -56,8 +56,6 @@ async fn resource_await( amount: usize ) -> DynResult<()>
 
 
 
-// This wants to linger around for an entire minute...zzz
-//
 async fn slow() -> DynResult<()>
 {
 	info!( "spawned slow" );

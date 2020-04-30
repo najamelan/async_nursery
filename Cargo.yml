@@ -3,17 +3,26 @@ package:
   # When releasing to crates.io:
   #
   # - last check for all TODO, FIXME, expect, unwrap.
-  # - re-read and final polish of documentation
-  # - run cargo udeps
-  # - run cargo clippy
   # - recheck log statements (informative, none left that were just for development, ...)
+  # - `cargo +nightly doc` and re-read and final polish of documentation.
+  #
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
-  # - verify CI result
-  # - run cargo test on dependent crates
+  #
+  # - `touch **.rs && cargo clippy --tests --examples --benches --all-features`
+  # - `cargo update`
+  # - `cargo udeps --all-targets --all-features`
+  # - `cargo audit`
+  # - `cargo crev crate verify --show-all --recursive` and review.
+  # - 'cargo test --all-targets --all-features'
+  #
+  # - push dev and verify CI result
+  # - `cargo test` on dependent crates
+  #
   # - cargo publish
-  # - merge dev branch into master
-  # - create git tag with version number
+  # - `git checkout master && git merge dev --no-ff`
+  # - `git tag x.x.x` with version number.
+  # - `git push && git push --tags`
   #
   version       : 0.1.0
   name          : async_nursery
@@ -79,7 +88,7 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.2, features: [ async_std, tokio_ct ] }
+      async_executors: { version: ^0.2, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1, features: [ attributes ] }
       flexi_logger   : ^0.15
       indicatif      : ^0.14
@@ -120,9 +129,6 @@ example:
     required-features: [ not_wasm ]
 
   - name             : return_catch_unwind
-    required-features: [ not_wasm ]
-
-  - name             : return_catch_unwind_all
     required-features: [ not_wasm ]
 
   - name             : return_error

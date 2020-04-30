@@ -269,6 +269,8 @@ async fn resource_drop_st_inner( senders: Vec<mpsc::UnboundedSender<()>>, exec: 
 	let (tx , mut rx ) = mpsc::unbounded();
 	let (tx2, mut rx2) = mpsc::unbounded();
 
+	#[ allow(clippy::redundant_clone) ] // false positive
+	//
 	exec.clone().block_on( async move
 	{
 		resource_drop_st_inner( vec![tx, tx2], exec ).await.unwrap();

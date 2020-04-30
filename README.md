@@ -16,7 +16,7 @@ _async_nursery_ brings a structured concurrency primitive to Rust. There are thr
 
 [Notes on structured concurrency, or: Go statement considered harmful](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/) by Nathaniel J. Smith explains this exquisitely. To summarize, if a function wants to split of and do some work concurrently, make sure that all it's child tasks are finished when the function returns. That way it functions as the black box we are used to from synchronous code. A function has inputs and a return value, and when it is done, no code it created is running anymore.
 
-You could already do this by stuffing JoinHandles from _tokio_ or _async_std_ in a `FuturesUnordered`, but as we will see below, _async_nursery_ is a bit more flexible and convenient.
+You could already do this by stuffing `JoinHandle`s from _async_executors_ in a `FuturesUnordered`, but as we will see below, _async_nursery_ is a bit more flexible and convenient. As opposed to the `JoinHandle`s from _tokio_ or _async-std_ directly, the ones from _async_executors_ do not detach on drop by default.
 
 ### 2. Prevent resource leakage.
 
@@ -40,20 +40,25 @@ In Rust it is common to propagate errors up the call stack. If you spawn a task 
 
 - **timeouts**: timers are quite tightly coupled with executors so it seems and there is no integration for timers in _async_executors_ yet. Both _tokio_ and _async-std_ have a `timeout` method and _futures-timer_ can work for anything else but will create a global timer thread and could have some overhead compared to executor specific implementations. However that's not much good for agnostic libraries. I will look into that, but until then you will have to choose your timeout implementation manually.
 
-- No API provided for **cooperative cancellation**. Since there is no support for that in `std::task::Context`, you must basically pass some cancellation token into a task that needs to do cleanup and doesn't support being dropped at any await point. Since it requires specific support of the spawned task, I leave this to the user. An example using an `AtomicBool` is included in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). The advantage is flexibility. You could cancel just certain tasks in the nursery and leave others running, or let the others be canceled by drop if they support it, etc.
+- No API provided for **cooperative cancellation**. Since there is no support for that in `std::task::Context`, you must basically pass some cancellation token into a task __that needs to do cleanup and doesn't support being dropped at all await points__. Since it requires specific support of the spawned task, I leave this to the user. An example using an `AtomicBool` is included in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). The advantage is flexibility. You could cancel just certain tasks in the nursery and leave others running, or let the others be canceled by drop if they support it, etc. [Async drop](https://internals.rust-lang.org/t/asynchronous-destructors/11127) will most likely alleviate this pain one day, but it's not there yet.
 
 
 ## Table of Contents
 
 - [Install](#install)
-   - [Upgrade](#upgrade)
-   - [Dependencies](#dependencies)
-   - [Security](#security)
+  - [Upgrade](#upgrade)
+  - [Dependencies](#dependencies)
+  - [Security](#security)
+  - [Performance](#performance)
 - [Usage](#usage)
-   - [Basic Example](#basic-example)
-   - [API](#api)
+  - [Basic Example](#basic-example)
+  - [Returning errors](#returning-errors)
+  - [Recover other return types](#recover-other-return-types)
+  - [Panics](#panics)
+  - [Differences with FuturesUnordered](#differences-with-FuturesUnordered)
+  - [API](#api)
 - [Contributing](#contributing)
-   - [Code of Conduct](#code-of-conduct)
+  - [Code of Conduct](#code-of-conduct)
 - [License](#license)
 
 
@@ -94,11 +99,13 @@ The crate uses `forbid(unsafe)`, but depends on `futures` which has quite some u
 
 ### Performance
 
-Currently the implementation is simple. Nursery just sends the JoinHandle to NurseryStream over an unbounded channel. This is convenient, because it means `NurseExt::nurse` doesn't have to be async, but it has some overhead compared to using the underlying executor directly. In the future I hope to optimize the implementation.
+Currently the implementation is simple. `Nursery` just sends the `JoinHandle` to `NurseryStream` over an unbounded channel. This is convenient, because it means `NurseExt::nurse` doesn't have to be async, but it has some overhead compared to using the underlying executor directly. In the future I hope to optimize the implementation.
 
 ## Usage
 
-**Warning**: If ever you wait on the stream to finish, remember it will only finish if there are no Nursery's alive anymore. You must drop the Nursery before awaiting the NurseryStream. If your program deadlocks, this should be the first place to look.
+**Warning**: If ever you wait on the stream to finish, remember it will only finish if there are no `Nursery`'s alive anymore. You must drop the Nursery before awaiting the `NurseryStream`. If your program deadlocks, this should be the first place to look.
+
+All tasks spawned on a nursery must have the same `Future::Output` type.
 
 ### Basic example
 
@@ -152,12 +159,12 @@ Nursery has no special handling of panics. If your task panics, it depends on th
 
 ### Differences with FuturesUnordered
 
-`Nursery` and `NurseryStream` wrap a FuturesUnordered internally. The main feature this gives us is that it allows to us to start polling the stream of outputs and still continue to spawn more subtasks. `FuturesUnordered` has a very strict two phase API. First spawn, then get output. This allows us to use `NuseryStream` as a long-lived container. Eg. if you are going to spawn network requests, you can continuously listen to `NurseryStream` for errors that happened during processing while spawning further requests. Then when the connection closes, we want to stop processing outstanding requests for this connection. By dropping the `NurseryStream`, we can do that.
+`Nursery` and `NurseryStream` wrap a FuturesUnordered internally. The main feature this gives us is that it allows to us to start polling the stream of outputs and still continue to spawn more subtasks. `FuturesUnordered` has a very strict two phase API. First spawn, then get output. This allows us to use `NuseryStream` as a long-lived container. Eg. if you are going to spawn network requests, you can continuously listen to `NurseryStream` for errors that happened during processing while continuing to spawn further requests. Then when the connection closes, we want to stop processing outstanding requests for this connection. By dropping the `NurseryStream`, we can do that.
 
 Further a few conveniences are added:
   - `Nursery` does the spawning for you, never need to handle `JoinHandle`s manually.
   - `NurseryStream` not only implements `Stream`, but also `Future`, if you just want to wait for everything to finish and don't care for the Outputs.
-  - `Nursery` can be cloned and send around, into function calls and spawned subtasks. You don't have to send back the `JoinHandle`s to push them into the `FuturesUnordered`.
+  - `Nursery` can be cloned and send around, into function calls and spawned subtasks. You don't have to send back the `JoinHandle`s through a channel manually to push them into the `FuturesUnordered`.
 
 
 ## API

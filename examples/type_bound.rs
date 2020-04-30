@@ -2,10 +2,12 @@
 
 use
 {
-	async_nursery :: { * }
+	futures         :: { StreamExt                               } ,
+	async_nursery   :: { Nursery, NurseryStream, Nurse, NurseExt } ,
+	async_executors :: { SpawnHandle, SpawnHandleExt, JoinHandle } ,
 };
 
-type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
+type DynResult<T> = Result<T, Box< dyn std::error::Error + Send + Sync + 'static >>;
 
 
 // This basically guarantees that when the connection dies, and this Connection
@@ -24,12 +26,37 @@ type DynError = Box< dyn std::error::Error + Send + Sync + 'static >;
 //
 pub struct Connection
 {
-	nursery: Box< dyn Nurse<Result<(), DynError>> + Send >
+	nursery: Box< dyn Nurse< DynResult<()> > + Send > ,
+	_handle : JoinHandle<DynResult<()>>,
 }
 
 impl Connection
 {
-	pub fn process( &self ) -> Result<(), DynError>
+	pub fn new( exec: impl SpawnHandle<DynResult<()>> + Clone + Send + 'static ) -> DynResult<Self>
+	{
+		let (nursery, nursery_stream) = Nursery::new( exec.clone() );
+
+		let _handle = exec.spawn_handle( Self::listen_request_errors( nursery_stream ) )?;
+
+		Ok( Self
+		{
+			nursery: Box::new( nursery ) ,
+			_handle                      ,
+		})
+	}
+
+	async fn listen_request_errors( mut nursery_stream: NurseryStream< DynResult<()> > ) -> DynResult<()>
+	{
+		while let Some(res) = nursery_stream.next().await
+		{
+			let _ = res.map_err( |e| /* handle error*/ e );
+		}
+
+		Ok(())
+	}
+
+
+	pub fn process( &self ) -> DynResult<()>
 	{
 		let _disconnect = false;
 
@@ -53,7 +80,7 @@ impl Connection
 
 #[ async_std::main ]
 //
-async fn main() -> Result<(), DynError>
+async fn main() -> DynResult<()>
 {
 	Ok(())
 }

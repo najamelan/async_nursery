@@ -4,6 +4,8 @@ use crate:: { import::*, Nurse, LocalNurse, NurseErr, NurseryStream };
 /// The sender part of the nursery. Wraps an unbounded sender. Can be cloned.
 /// To manage the spawned tasks and await their output, see [`NurseryStream`].
 ///
+/// Will disconnect on drop. You can close all senders by calling `close_nursery`.
+///
 #[ derive( Debug ) ]
 //
 pub struct Nursery<S, Out>

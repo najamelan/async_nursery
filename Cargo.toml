@@ -56,10 +56,6 @@ name = "return_catch_unwind"
 required-features = ["not_wasm"]
 
 [[example]]
-name = "return_catch_unwind_all"
-required-features = ["not_wasm"]
-
-[[example]]
 name = "return_error"
 required-features = ["not_wasm"]
 
@@ -135,5 +131,5 @@ features = ["attributes"]
 version = "^1"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
-features = ["async_std", "tokio_ct"]
+features = ["async_std", "tokio_ct", "tokio_tp"]
 version = "^0.2"

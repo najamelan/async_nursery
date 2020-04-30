@@ -87,7 +87,7 @@ async fn outlive_spawn() -> DynResult<()>
 		nursery.nurse( subtask( value.clone() ) )?;
 		nursery.nurse( subtask( value.clone() ) )?;
 		nursery.nurse( subtask( value.clone() ) )?;
-		nursery.nurse( subtask( value.clone() ) )?;
+		nursery.nurse( subtask( value         ) )?;
 
 		Ok(())
 	}
@@ -125,7 +125,7 @@ async fn outlive_spawn() -> DynResult<()>
 		nursery.nurse_local( subtask( value.clone() ) )?;
 		nursery.nurse_local( subtask( value.clone() ) )?;
 		nursery.nurse_local( subtask( value.clone() ) )?;
-		nursery.nurse_local( subtask( value.clone() ) )?;
+		nursery.nurse_local( subtask( value         ) )?;
 
 		Ok(())
 	}

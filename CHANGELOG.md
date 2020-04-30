@@ -1,6 +1,8 @@
 # async_nursery - CHANGELOG
 
-## 0.0.0 - 0000-00-00
+## 0.1.0 - 2020-04-30
+
+	Initial release.
 
 
 
