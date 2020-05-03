@@ -90,7 +90,7 @@ not_wasm = []
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
-description = "UPDATE ME"
+description = "Primitive for structured concurrency"
 documentation = "https://docs.rs/async_nursery"
 edition = "2018"
 exclude = []
