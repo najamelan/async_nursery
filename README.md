@@ -74,14 +74,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_nursery: ^0.1
+   async_nursery: ^0.2
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-   async_nursery = "0.1"
+   async_nursery = "0.2"
 ```
 
 ### Upgrade

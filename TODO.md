@@ -1,5 +1,9 @@
 # TODO
 
+- nursery for instrumented and withdispatch
+- ditch thiserror to shed deps.
+- can we make it no-std
+
 ## Questions
 
 - compare unicycle to FuturesUnordered. -> It might be good in itself, but the problem it solves doesn't matter to us. Main issue right now is the overhead of the channel. We could profile to see how much of the overhead comes from FuturesUnordered, or at least compare the benches against unicycle.
