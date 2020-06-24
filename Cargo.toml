@@ -13,8 +13,7 @@ rustc_version = "^0.2"
 thiserror = "^1"
 
 [dependencies.async_executors]
-features = ["spawn_handle"]
-version = "^0.2"
+version = "^0.3"
 
 [dependencies.futures]
 version = "^0.3"
@@ -22,10 +21,6 @@ version = "^0.3"
 [dev-dependencies]
 futures-timer = "^3"
 rand = "^0.7"
-
-[dev-dependencies.async_executors]
-features = ["spawn_handle"]
-version = "^0.2"
 
 [dev-dependencies.tokio]
 features = ["sync"]
@@ -90,7 +85,7 @@ not_wasm = []
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
-description = "UPDATE ME"
+description = "Primitive for structured concurrency"
 documentation = "https://docs.rs/async_nursery"
 edition = "2018"
 exclude = []
@@ -99,7 +94,7 @@ license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_nursery"
-version = "0.1.0"
+version = "0.2.0"
 
 [package.metadata]
 [package.metadata.docs]
@@ -114,7 +109,7 @@ wasm-bindgen-test = "^0.3"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.async_executors]
 features = ["bindgen"]
-version = "^0.2"
+version = "^0.3"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.futures-timer]
 features = ["wasm-bindgen"]
@@ -128,8 +123,8 @@ log = "^0.4"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]
 features = ["attributes"]
-version = "^1"
+version = "^1.6.0-beta"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "tokio_tp"]
-version = "^0.2"
+version = "^0.3"

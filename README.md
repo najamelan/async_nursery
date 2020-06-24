@@ -10,6 +10,29 @@
 
 The nursery allows writing concurrent programs adhering to structured concurrency. If you are new to the concept, there are some excellent resources on the dedicated [structured concurrency forum](https://trio.discourse.group/t/structured-concurrency-resources/21). The name of the library is inspired by the excellent python [Trio library](https://github.com/python-trio/trio).
 
+
+## Table of Contents
+
+- [Description](#description)
+- [Install](#install)
+  - [Upgrade](#upgrade)
+  - [Dependencies](#dependencies)
+  - [Security](#security)
+  - [Performance](#performance)
+- [Usage](#usage)
+  - [Basic Example](#basic-example)
+  - [Returning errors](#returning-errors)
+  - [Recover other return types](#recover-other-return-types)
+  - [Panics](#panics)
+  - [Differences with FuturesUnordered](#differences-with-FuturesUnordered)
+  - [API](#api)
+- [Contributing](#contributing)
+  - [Code of Conduct](#code-of-conduct)
+- [License](#license)
+
+
+## Description
+
 _async_nursery_ brings a structured concurrency primitive to Rust. There are three main goals in structured concurrency:
 
 ### 1. A sane control flow for concurrent programs.
@@ -43,25 +66,6 @@ In Rust it is common to propagate errors up the call stack. If you spawn a task 
 - No API provided for **cooperative cancellation**. Since there is no support for that in `std::task::Context`, you must basically pass some cancellation token into a task __that needs to do cleanup and doesn't support being dropped at all await points__. Since it requires specific support of the spawned task, I leave this to the user. An example using an `AtomicBool` is included in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). The advantage is flexibility. You could cancel just certain tasks in the nursery and leave others running, or let the others be canceled by drop if they support it, etc. [Async drop](https://internals.rust-lang.org/t/asynchronous-destructors/11127) will most likely alleviate this pain one day, but it's not there yet.
 
 
-## Table of Contents
-
-- [Install](#install)
-  - [Upgrade](#upgrade)
-  - [Dependencies](#dependencies)
-  - [Security](#security)
-  - [Performance](#performance)
-- [Usage](#usage)
-  - [Basic Example](#basic-example)
-  - [Returning errors](#returning-errors)
-  - [Recover other return types](#recover-other-return-types)
-  - [Panics](#panics)
-  - [Differences with FuturesUnordered](#differences-with-FuturesUnordered)
-  - [API](#api)
-- [Contributing](#contributing)
-  - [Code of Conduct](#code-of-conduct)
-- [License](#license)
-
-
 ## Install
 With [cargo add](https://github.com/killercup/cargo-edit):
 `cargo add async_nursery`
@@ -70,14 +74,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_nursery: ^0.1
+   async_nursery: ^0.2
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-   async_nursery = "0.1"
+   async_nursery = "0.2"
 ```
 
 ### Upgrade

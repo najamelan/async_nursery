@@ -24,10 +24,10 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.1.0
+  version       : 0.2.0
   name          : async_nursery
   authors       : [ Naja Melan <najamelan@autistici.org> ]
-  description   : UPDATE ME
+  description   : Primitive for structured concurrency
   documentation : https://docs.rs/async_nursery
   repository    : https://github.com/najamelan/async_nursery
   readme        : README.md
@@ -65,7 +65,7 @@ dependencies:
   # Means we use types from these crates in our public API.
   #
   futures        : { version: ^0.3 }
-  async_executors: { version: ^0.2, features: [ spawn_handle ] }
+  async_executors: { version: ^0.3 }
 
   # Private dependencies
   #
@@ -74,7 +74,6 @@ dependencies:
 
 dev-dependencies:
 
-  async_executors   : { version: ^0.2, features: [ spawn_handle ] }
   # pretty_assertions : ^0.6
   # loom              : ^0.3
   tokio             : { version: ^0.2, features: [ sync ] }
@@ -88,8 +87,8 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.2, features: [ async_std, tokio_ct, tokio_tp ] }
-      async-std      : { version: ^1, features: [ attributes ] }
+      async_executors: { version: ^0.3, features: [ async_std, tokio_ct, tokio_tp ] }
+      async-std      : { version: ^1.6.0-beta, features: [ attributes ] }
       flexi_logger   : ^0.15
       indicatif      : ^0.14
       log            : ^0.4
@@ -99,7 +98,7 @@ target:
 
     dev-dependencies:
 
-      async_executors  : { version: ^0.2, features: [ bindgen ] }
+      async_executors  : { version: ^0.3, features: [ bindgen ] }
       futures-timer    : { version: ^3  , features: [ wasm-bindgen ] }
       wasm-bindgen-test: ^0.3
 
