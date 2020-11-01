@@ -67,10 +67,6 @@ dependencies:
   futures        : { version: ^0.3 }
   async_executors: { version: ^0.3 }
 
-  # Private dependencies
-  #
-  thiserror   : ^1
-
 
 dev-dependencies:
 
