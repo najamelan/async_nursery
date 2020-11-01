@@ -3,7 +3,6 @@
 
 ## Chores
 
-- nursery for instrumented and withdispatch (You can just feed it an instrumented executor, but then you don't always control creation)
 
 ## Questions
 

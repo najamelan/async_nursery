@@ -16,13 +16,27 @@ version = "^0.4.0-beta"
 [dependencies.futures]
 version = "^0.3"
 
+[dependencies.tracing-futures]
+features = ["futures-03"]
+optional = true
+version = "^0.2"
+
 [dev-dependencies]
 futures-timer = "^3"
 rand = "^0.7"
 
 [dev-dependencies.tokio]
 features = ["sync"]
+version = "^0.3"
+
+[dev-dependencies.tracing-subscriber]
+default-features = false
+features = ["fmt"]
 version = "^0.2"
+
+[dev-dependencies.tracing_crate]
+package = "tracing"
+version = "^0.1"
 
 [[example]]
 name = "cancel_coop"
@@ -76,9 +90,14 @@ required-features = ["not_wasm"]
 name = "type_bound"
 required-features = ["not_wasm"]
 
+[[example]]
+name = "tracing"
+required-features = ["not_wasm", "tracing"]
+
 [features]
 default = ["not_wasm"]
 not_wasm = []
+tracing = ["tracing-futures", "async_executors/tracing"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]

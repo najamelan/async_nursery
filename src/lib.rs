@@ -41,6 +41,8 @@ pub use
 	local_nurse    :: * ,
 };
 
+#[ cfg( feature = "tracing" ) ] mod tracing;
+#[ cfg( feature = "tracing" ) ] pub use tracing::*;
 
 // External dependencies
 //

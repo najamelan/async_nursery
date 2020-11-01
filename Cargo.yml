@@ -58,6 +58,8 @@ features:
   #
   not_wasm: []
 
+  tracing: [ tracing-futures, async_executors/tracing ]
+
 
 dependencies:
 
@@ -66,6 +68,7 @@ dependencies:
   #
   futures        : { version: ^0.3 }
   async_executors: { version: ^0.4.0-beta }
+  tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }
 
 
 dev-dependencies:
@@ -75,6 +78,8 @@ dev-dependencies:
   tokio             : { version: ^0.3, features: [ sync ] }
   futures-timer     : ^3
   rand              : ^0.7
+  tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
+  tracing_crate     : { version: ^0.1, package: tracing }
 
 
 target:
@@ -146,3 +151,6 @@ example:
 
   - name             : type_bound
     required-features: [ not_wasm ]
+
+  - name             : tracing
+    required-features: [ not_wasm, tracing ]
