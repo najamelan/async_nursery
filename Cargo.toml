@@ -7,7 +7,7 @@ status = "actively-developed"
 repository = "najamelan/async_nursery"
 
 [build-dependencies]
-rustc_version = "^0.2"
+rustc_version = "^0.3"
 
 [dependencies]
 [dependencies.async_executors]
@@ -134,8 +134,8 @@ version = "^3"
 
 [target."cfg(not( target_arch = \"wasm32\" ))"]
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies]
-flexi_logger = "^0.15"
-indicatif = "^0.14"
+flexi_logger = "^0.16"
+indicatif = "^0.15"
 log = "^0.4"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]

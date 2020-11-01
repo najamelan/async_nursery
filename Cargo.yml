@@ -90,8 +90,8 @@ target:
 
       async_executors: { version: ^0.4.0-beta, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1.6.0-beta, features: [ attributes ] }
-      flexi_logger   : ^0.15
-      indicatif      : ^0.14
+      flexi_logger   : ^0.16
+      indicatif      : ^0.15
       log            : ^0.4
 
 
@@ -106,7 +106,7 @@ target:
 
 build-dependencies:
 
-  rustc_version: ^0.2
+  rustc_version: ^0.3
 
 
 # Needed to avoid them being compiled when running: wasm-pack test --firefox --headless -- --no-default-features
