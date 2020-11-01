@@ -41,6 +41,8 @@ pub use
 	local_nurse    :: * ,
 };
 
+#[ cfg( feature = "tracing" ) ] mod tracing;
+#[ cfg( feature = "tracing" ) ] pub use tracing::*;
 
 // External dependencies
 //
@@ -54,7 +56,6 @@ mod import
 		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
 		futures          :: { stream::FuturesUnordered                                              } ,
 		std              :: { task::{ Context, Poll }, pin::Pin, future::Future, sync::Arc, rc::Rc  } ,
-		thiserror        :: { *                                                                     } ,
 	};
 }
 

@@ -51,7 +51,6 @@ jobs:
             - libssl-dev # for cargo-tarpaulin
 
       before_script:
-        - cargo install --force cargo-audit
         - cargo generate-lockfile
 
       script:
@@ -59,7 +58,6 @@ jobs:
         - bash ci/doc.bash
         - bash ci/coverage.bash
         - bash ci/deny.bash
-        - cargo audit
 
 
     - name: osx stable rust

@@ -3,22 +3,41 @@ use crate::{ import::* };
 
 /// The error type for errors happening in _async_nursery_.
 //
-#[ derive( Clone, Copy, PartialEq, Eq, Debug, Error ) ]
+#[ derive( Clone, Copy, PartialEq, Eq, Debug ) ]
 //
 pub enum NurseErr
 {
-	/// The executor failed to spawn the provided task.
-	//
-	#[ error( "The executor failed to spawn the provided task." )]
+	/// The executor failed to spawn the provided task. This means the executor returned an error.
 	//
 	Spawn,
 
 	/// The nursery is closed and no longer accepts new tasks.
 	//
-	#[ error( "The nursery is closed and no longer accepts new tasks." )]
-	//
 	Closed,
 }
+
+
+
+impl std::error::Error for NurseErr {}
+
+
+impl std::fmt::Display for NurseErr
+{
+	fn fmt( &self, f: &mut std::fmt::Formatter<'_> ) -> std::fmt::Result
+	{
+		match &self
+		{
+			NurseErr::Spawn =>
+
+				write!( f, "The executor failed to spawn the provided task." ),
+
+			NurseErr::Closed =>
+
+				write!( f, "The nursery is closed and no longer accepts new tasks." ),
+		}
+	}
+}
+
 
 
 

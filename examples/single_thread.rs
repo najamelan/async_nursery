@@ -13,14 +13,13 @@ mod common;
 
 use
 {
-	async_executors :: { TokioCt, LocalSpawnHandle                } ,
-	tokio           :: { runtime::Builder                         } ,
-	async_nursery   :: { Nursery, LocalNurseExt                   } ,
-	log             :: { info, error                              } ,
-	std             :: { time::Duration, convert::TryFrom, rc::Rc } ,
-	futures_timer   :: { Delay                                    } ,
-	futures         :: { TryStreamExt                             } ,
-	common          :: { DynResult                                } ,
+	async_executors :: { TokioCtBuilder, LocalSpawnHandle } ,
+	async_nursery   :: { Nursery, LocalNurseExt           } ,
+	log             :: { info, error                      } ,
+	std             :: { time::Duration, rc::Rc           } ,
+	futures_timer   :: { Delay                            } ,
+	futures         :: { TryStreamExt                     } ,
+	common          :: { DynResult                        } ,
 };
 
 
@@ -83,7 +82,7 @@ fn main() -> DynResult<()>
 {
 	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
 
-	let exec = TokioCt::try_from( &mut Builder::new() )?;
+	let exec = TokioCtBuilder::new().build()?;
 
 	let err = exec.block_on( return_error( exec.clone() ) );
 
