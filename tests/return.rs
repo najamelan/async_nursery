@@ -35,7 +35,7 @@ async fn in_method() -> DynResult<()>
 //
 #[test] fn in_method_local() -> DynResult<()>
 {
-	let exec              = TokioCt::try_from( &mut Builder::new() )?;
+	let exec              = TokioCtBuilder::new().build()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	nursery.nurse( async { 5 + 5 } )?;

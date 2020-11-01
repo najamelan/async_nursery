@@ -85,7 +85,7 @@ async fn cleanup_await_st_inner( proofs: Vec<Arc<AtomicBool>>, exec: TokioCt ) -
 //
 #[test] fn cleanup_await_st() -> DynResult<()>
 {
-	let exec = TokioCt::try_from( &mut Builder::new() )?;
+	let exec = TokioCtBuilder::new().build()?;
 
 	let num_tasks = 5;
 	let mut proofs = Vec::new();
@@ -170,7 +170,7 @@ async fn cleanup_stream_st_inner( proofs: Vec<Arc<AtomicBool>>, exec: TokioCt ) 
 //
 #[test] fn cleanup_stream_st() -> DynResult<()>
 {
-	let exec = TokioCt::try_from( &mut Builder::new() )?;
+	let exec = TokioCtBuilder::new().build()?;
 
 	let num_tasks = 5;
 	let mut proofs = Vec::new();
@@ -264,7 +264,7 @@ async fn resource_drop_st_inner( senders: Vec<mpsc::UnboundedSender<()>>, exec: 
 //
 #[test] fn resource_drop_st() -> DynResult<()>
 {
-	let exec = TokioCt::try_from( &mut Builder::new() )?;
+	let exec = TokioCtBuilder::new().build()?;
 
 	let (tx , mut rx ) = mpsc::unbounded();
 	let (tx2, mut rx2) = mpsc::unbounded();

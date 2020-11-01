@@ -10,10 +10,8 @@ repository = "najamelan/async_nursery"
 rustc_version = "^0.2"
 
 [dependencies]
-thiserror = "^1"
-
 [dependencies.async_executors]
-version = "^0.3"
+version = "^0.4.0-beta"
 
 [dependencies.futures]
 version = "^0.3"
@@ -94,7 +92,7 @@ license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_nursery"
-version = "0.2.0"
+version = "0.3.0-beta.1"
 
 [package.metadata]
 [package.metadata.docs]
@@ -109,7 +107,7 @@ wasm-bindgen-test = "^0.3"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.async_executors]
 features = ["bindgen"]
-version = "^0.3"
+version = "^0.4.0-beta"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.futures-timer]
 features = ["wasm-bindgen"]
@@ -127,4 +125,4 @@ version = "^1.6.0-beta"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "tokio_tp"]
-version = "^0.3"
+version = "^0.4.0-beta"

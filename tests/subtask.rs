@@ -51,7 +51,7 @@ async fn outlive_method() -> DynResult<()>
 		Ok(())
 	}
 
-	let exec              = TokioCt::try_from( &mut Builder::new() )?;
+	let exec              = TokioCtBuilder::new().build()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	outlive( &nursery )?;
@@ -131,7 +131,7 @@ async fn outlive_spawn() -> DynResult<()>
 	}
 
 	let sum               = Rc::new( AtomicUsize::new(0) );
-	let exec              = TokioCt::try_from( &mut Builder::new() )?;
+	let exec              = TokioCtBuilder::new().build()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	nursery.nurse_local( outlive( sum.clone(), nursery.clone() ) )?;
