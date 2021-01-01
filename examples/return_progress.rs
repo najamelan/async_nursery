@@ -27,7 +27,7 @@ use
 
 async fn task( units_of_work: u64 ) -> u64
 {
-	let speed = thread_rng().gen_range( 10, 1000 );
+	let speed = thread_rng().gen_range( 10..1000 );
 	Delay::new( Duration::from_millis( units_of_work*speed ) ).await;
 
 	units_of_work
