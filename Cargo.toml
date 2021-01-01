@@ -11,7 +11,7 @@ rustc_version = "^0.3"
 
 [dependencies]
 [dependencies.async_executors]
-version = "^0.4.0-beta"
+version = "^0.4.0"
 
 [dependencies.futures]
 version = "^0.3"
@@ -23,11 +23,11 @@ version = "^0.2"
 
 [dev-dependencies]
 futures-timer = "^3"
-rand = "^0.7"
+rand = "^0.8"
 
 [dev-dependencies.tokio]
 features = ["sync"]
-version = "^0.3"
+version = "^1"
 
 [dev-dependencies.tracing-subscriber]
 default-features = false
@@ -111,7 +111,7 @@ license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_nursery"
-version = "0.3.0-beta.1"
+version = "0.3.0"
 
 [package.metadata]
 [package.metadata.docs]
@@ -126,7 +126,7 @@ wasm-bindgen-test = "^0.3"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.async_executors]
 features = ["bindgen"]
-version = "^0.4.0-beta"
+version = "^0.4.0"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.futures-timer]
 features = ["wasm-bindgen"]
@@ -140,8 +140,8 @@ log = "^0.4"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]
 features = ["attributes"]
-version = "^1.6.0-beta"
+version = "^1"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "tokio_tp"]
-version = "^0.4.0-beta"
+version = "^0.4.0"

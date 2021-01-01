@@ -24,7 +24,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.3.0-beta.1
+  version       : 0.3.0
   name          : async_nursery
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Primitive for structured concurrency
@@ -67,7 +67,7 @@ dependencies:
   # Means we use types from these crates in our public API.
   #
   futures        : { version: ^0.3 }
-  async_executors: { version: ^0.4.0-beta }
+  async_executors: { version: ^0.4.0 }
   tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }
 
 
@@ -75,9 +75,9 @@ dev-dependencies:
 
   # pretty_assertions : ^0.6
   # loom              : ^0.3
-  tokio             : { version: ^0.3, features: [ sync ] }
+  tokio             : { version: ^1, features: [ sync ] }
   futures-timer     : ^3
-  rand              : ^0.7
+  rand              : ^0.8
   tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt ] }
   tracing_crate     : { version: ^0.1, package: tracing }
 
@@ -88,8 +88,8 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.4.0-beta, features: [ async_std, tokio_ct, tokio_tp ] }
-      async-std      : { version: ^1.6.0-beta, features: [ attributes ] }
+      async_executors: { version: ^0.4.0, features: [ async_std, tokio_ct, tokio_tp ] }
+      async-std      : { version: ^1, features: [ attributes ] }
       flexi_logger   : ^0.16
       indicatif      : ^0.15
       log            : ^0.4
@@ -99,7 +99,7 @@ target:
 
     dev-dependencies:
 
-      async_executors  : { version: ^0.4.0-beta, features: [ bindgen ] }
+      async_executors  : { version: ^0.4.0, features: [ bindgen ] }
       futures-timer    : { version: ^3  , features: [ wasm-bindgen ] }
       wasm-bindgen-test: ^0.3
 
