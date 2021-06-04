@@ -1,5 +1,5 @@
 # TODO
-
+- where possible, pass on extra traits from async_executors. eg, io and timer traits.
 
 ## Chores
 

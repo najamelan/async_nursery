@@ -88,10 +88,10 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.4.0, features: [ async_std, tokio_ct, tokio_tp ] }
+      async_executors: { version: ^0.4, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1, features: [ attributes ] }
-      flexi_logger   : ^0.16
-      indicatif      : ^0.15
+      flexi_logger   : ^0.17
+      indicatif      : ^0.16
       log            : ^0.4
 
 

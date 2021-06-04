@@ -61,7 +61,7 @@ async fn main() -> DynResult<()>
 	(
 		ProgressStyle::default_bar()
 
-			.template( &"{{prefix:.bold}}▕{{wide_bar:.green}}▏{{msg}}".to_string() )
+			.template( &"{prefix:.bold}▕{wide_bar:.green}▏{msg}".to_string() )
 	);
 
 	// don't forget.
@@ -71,7 +71,7 @@ async fn main() -> DynResult<()>
 	output.for_each( |x|
 	{
 		pb.inc(x);
-		pb.set_message( &format!( "{}/{} jobs done.", pb.position(), UNITS ) );
+		pb.set_message( format!( "{}/{} jobs done.", pb.position(), UNITS ) );
 		ready(())
 
 	}).await;

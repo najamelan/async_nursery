@@ -134,8 +134,8 @@ version = "^3"
 
 [target."cfg(not( target_arch = \"wasm32\" ))"]
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies]
-flexi_logger = "^0.16"
-indicatif = "^0.15"
+flexi_logger = "^0.17"
+indicatif = "^0.16"
 log = "^0.4"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async-std]
@@ -144,4 +144,4 @@ version = "^1"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "tokio_tp"]
-version = "^0.4.0"
+version = "^0.4"
