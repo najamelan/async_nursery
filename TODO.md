@@ -11,6 +11,7 @@
 
 ## Tests
 
+- CI on wasm?
 - check code coverage and add tests.
 - test what happens if spawner is not 'static
 - verify drop behavior of futures unordered
