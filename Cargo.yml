@@ -24,7 +24,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.3.0
+  version       : 0.3.1
   name          : async_nursery
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Primitive for structured concurrency
