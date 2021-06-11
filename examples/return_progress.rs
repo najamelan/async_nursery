@@ -15,12 +15,12 @@ use
 {
 	async_executors :: { AsyncStd                                                  } ,
 	async_nursery   :: { Nursery, NurseExt                                         } ,
-	futures         :: { StreamExt, future::ready                                  } ,
 	common          :: { DynResult                                                 } ,
-	std             :: { time::Duration                                            } ,
+	futures         :: { StreamExt, future::ready                                  } ,
 	futures_timer   :: { Delay                                                     } ,
 	indicatif       :: { ProgressBar, ProgressStyle                                } ,
 	rand            :: { distributions::{ Distribution, Uniform }, Rng, thread_rng } ,
+	std             :: { time::Duration                                            } ,
 };
 
 

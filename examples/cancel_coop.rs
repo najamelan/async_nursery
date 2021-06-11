@@ -1,7 +1,7 @@
 //! The point of cooperative cancellation is to not be potentially canceled at each await point
 //! but to be able to do cleanup.
 //!
-//! One possible implementation of cooperative cancellation. This just uses an AtomicBool to indicate
+//! This is but one possible implementation of cooperative cancellation. This just uses an AtomicBool to indicate
 //! that tasks should stop.
 //!
 //! Async drop should also provide a way to do cleanup when canceled, but doesn't exist yet.
@@ -13,19 +13,19 @@
 //!
 //! $ cargo run --example cancel_coop
 //!
-//! INFO [cancel_coop] nursery created
-//! INFO [cancel_coop] spawned slow: 1
-//! INFO [cancel_coop] spawned slow: 3
-//! INFO [cancel_coop] spawned slow: 4
-//! INFO [cancel_coop] spawned slow: 2
-//! INFO [cancel_coop] end of cancel_coop.
-//! INFO [cancel_coop] spawned slow: 5
-//! INFO [cancel_coop] ended slow: 1
-//! INFO [cancel_coop] canceling
-//! INFO [cancel_coop] ended slow: 2
-//! INFO [cancel_coop] slow 3 doing cleanup
-//! INFO [cancel_coop] slow 4 doing cleanup
-//! INFO [cancel_coop] slow 5 doing cleanup
+//! INFO cancel_coop: nursery created
+//! INFO cancel_coop: end of cancel_coop.
+//! INFO cancel_coop: spawned slow: 1
+//! INFO cancel_coop: spawned slow: 5
+//! INFO cancel_coop: spawned slow: 4
+//! INFO cancel_coop: spawned slow: 2
+//! INFO cancel_coop: spawned slow: 3
+//! INFO cancel_coop: ended slow: 1
+//! INFO cancel_coop: canceling
+//! INFO cancel_coop: ended slow: 2
+//! INFO cancel_coop: slow 4 doing cleanup
+//! INFO cancel_coop: slow 3 doing cleanup
+//! INFO cancel_coop: slow 5 doing cleanup
 //!
 mod common;
 
@@ -33,10 +33,10 @@ use
 {
 	async_executors :: { AsyncStd                                                               } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt                                               } ,
-	log             :: { info                                                                   } ,
-	std             :: { time::Duration, sync::{ Arc, atomic::{ AtomicBool, Ordering::SeqCst }} } ,
+	common          :: { DynResult, setup_tracing                                               } ,
 	futures_timer   :: { Delay                                                                  } ,
-	common          :: { DynResult                                                              } ,
+	std             :: { time::Duration, sync::{ Arc, atomic::{ AtomicBool, Ordering::SeqCst }} } ,
+	tracing_crate   :: { info                                                                   } ,
 };
 
 
@@ -88,7 +88,7 @@ async fn slow( i: usize, cancel: Arc<AtomicBool> )
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 

@@ -22,11 +22,11 @@ use
 {
 	async_executors :: { AsyncStd                 } ,
 	async_nursery   :: { Nursery, NurseExt        } ,
-	log             :: { info                     } ,
-	std             :: { time::Duration           } ,
-	futures_timer   :: { Delay                    } ,
+	common          :: { DynResult, setup_tracing } ,
 	futures         :: { channel::mpsc, StreamExt } ,
-	common          :: { DynResult                } ,
+	futures_timer   :: { Delay                    } ,
+	std             :: { time::Duration           } ,
+	tracing_crate   :: { info                     } ,
 };
 
 
@@ -70,7 +70,7 @@ async fn slow( tx: mpsc::UnboundedSender<()> ) -> DynResult<()>
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let (tx , mut rx ) = mpsc::unbounded();
 	let (tx2, mut rx2) = mpsc::unbounded();

@@ -24,10 +24,10 @@ use
 {
 	async_executors :: { AsyncStd                 } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt } ,
-	log             :: { info                     } ,
-	std             :: { time::Duration           } ,
+	common          :: { DynResult, setup_tracing } ,
 	futures_timer   :: { Delay                    } ,
-	common          :: { DynResult                } ,
+	std             :: { time::Duration           } ,
+	tracing_crate   :: { info                     } ,
 };
 
 
@@ -64,7 +64,7 @@ async fn slow( i: usize ) -> DynResult<()>
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 
