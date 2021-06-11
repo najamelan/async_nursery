@@ -1,4 +1,10 @@
-//! By passing a nursery into a function, it can spawn other tasks that outlive itself.
+//! The idea of structured concurrency is to create a call graph of asynchronous components. That is
+//! when a function spawns a task, that task is joined before the function returns. This is what async_nursery
+//! allows you to do. However, sometimes we want to delegate pieces of our code to functions. They might
+//! have to spawn but not be important in the call graph hierarchy. By passing a nursery into a function,
+//! it can spawn other tasks that outlive itself. These tasks will still be joined at the level in the
+//! call stack where the nursery is managed.
+//!
 //! You should see from the output that the slow tasks end after resource_outlive has ended.
 //!
 //! Expected output in 3 seconds:
@@ -24,10 +30,10 @@ use
 {
 	async_executors :: { AsyncStd                 } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt } ,
-	log             :: { info                     } ,
-	std             :: { time::Duration           } ,
+	common          :: { DynResult, setup_tracing } ,
 	futures_timer   :: { Delay                    } ,
-	common          :: { DynResult                } ,
+	std             :: { time::Duration           } ,
+	tracing_crate   :: { info                     } ,
 };
 
 
@@ -62,7 +68,7 @@ async fn slow( i: usize )
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 

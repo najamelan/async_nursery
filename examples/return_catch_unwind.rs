@@ -24,14 +24,17 @@
 //! INFO [return_catch_unwind] spawned wrong.
 //! //! ... a 100 times.
 //!
+mod common;
+
 use
 {
 	async_executors :: { AsyncStd                } ,
 	async_nursery   :: { Nursery, NurseExt       } ,
-	log             :: { info, error             } ,
-	std             :: { time::Duration          } ,
-	futures_timer   :: { Delay                   } ,
+	common          :: { setup_tracing           } ,
 	futures         :: { FutureExt, TryStreamExt } ,
+	futures_timer   :: { Delay                   } ,
+	std             :: { time::Duration          } ,
+	tracing_crate   :: { info, error             } ,
 };
 
 
@@ -93,7 +96,7 @@ async fn wrong()
 //
 async fn main()
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	// log errors instead of returning them on the stderr.
 	//

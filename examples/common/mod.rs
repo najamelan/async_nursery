@@ -1,7 +1,10 @@
+// Not everything is used in all examples.
+//
+#![allow(dead_code)]
 
 use
 {
-	log :: { * } ,
+	tracing_crate :: { warn } ,
 };
 
 
@@ -20,4 +23,16 @@ impl Drop for AlertOnDrop
 	{
 		warn!( "Dropped: {}", self.0 );
 	}
+}
+
+
+
+pub fn setup_tracing()
+{
+	let _ = tracing_subscriber::fmt::Subscriber::builder()
+
+		.with_env_filter( "debug,async_std=warn" )
+		.without_time()
+	   .try_init()
+	;
 }

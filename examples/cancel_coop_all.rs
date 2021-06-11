@@ -18,12 +18,12 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd                 } ,
+	async_executors :: { AsyncStd                           } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt, NurseErr } ,
-	log             :: { info                     } ,
-	std             :: { time::Duration           } ,
-	futures_timer   :: { Delay                    } ,
-	common          :: { DynResult                } ,
+	common          :: { DynResult, setup_tracing           } ,
+	futures_timer   :: { Delay                              } ,
+	std             :: { time::Duration                     } ,
+	tracing_crate   :: { info                               } ,
 };
 
 
@@ -74,7 +74,7 @@ async fn slow( i: usize ) -> DynResult<()>
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let (nursery, mut output) = Nursery::new( AsyncStd );
 	info!( "nursery created" );

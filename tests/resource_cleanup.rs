@@ -57,7 +57,7 @@ async fn cleanup_await_mt() -> DynResult<()>
 
 	for proof in proofs.iter()
 	{
-		assert_eq!( true, proof.load(SeqCst) );
+		assert!( proof.load(SeqCst) );
 	}
 
 	Ok(())
@@ -99,7 +99,7 @@ async fn cleanup_await_st_inner( proofs: Vec<Arc<AtomicBool>>, exec: TokioCt ) -
 
 	for proof in proofs.iter()
 	{
-		assert_eq!( true, proof.load(SeqCst) );
+		assert!( proof.load(SeqCst) );
 	}
 
 	Ok(())
@@ -142,7 +142,7 @@ async fn cleanup_stream_mt() -> DynResult<()>
 
 	for proof in proofs.iter()
 	{
-		assert_eq!( true, proof.load(SeqCst) );
+		assert!( proof.load(SeqCst) );
 	}
 
 	Ok(())
@@ -184,7 +184,7 @@ async fn cleanup_stream_st_inner( proofs: Vec<Arc<AtomicBool>>, exec: TokioCt ) 
 
 	for proof in proofs.iter()
 	{
-		assert_eq!( true, proof.load(SeqCst) );
+		assert!( proof.load(SeqCst) );
 	}
 
 	Ok(())

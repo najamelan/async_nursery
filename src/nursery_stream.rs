@@ -58,44 +58,21 @@ impl<Out> Stream for NurseryStream<Out>
 	{
 		// Try to get as many JoinHandles as we can to put them in FuturesUnordered.
 		//
-		if !self.rx_closed { loop
+		while !self.rx_closed
 		{
 			match Pin::new( &mut self.as_mut().rx ).poll_next(cx)
 			{
-				Poll::Pending => break,
-
-				Poll::Ready(None) =>
-				{
-					self.rx_closed = true;
-					break;
-				}
-
-				Poll::Ready( Some(handle) ) =>
-				{
-					self.unordered.push( handle );
-				}
+				Poll::Pending               => break                         ,
+				Poll::Ready( None         ) => self.rx_closed = true         ,
+				Poll::Ready( Some(handle) ) => self.unordered.push( handle ) ,
 			}
-		}}
+		}
 
 		match ready!( Pin::new( &mut self.as_mut().unordered ).poll_next(cx) )
 		{
-			None =>
-			{
-				if self.rx_closed
-				{
-					Poll::Ready(None)
-				}
-
-				else
-				{
-					Poll::Pending
-				}
-			}
-
-			out =>
-			{
-				Poll::Ready(out)
-			}
+			None if self.rx_closed => Poll::Ready(None) ,
+			None                   => Poll::Pending     ,
+			out                    => Poll::Ready(out)  ,
 		}
 	}
 

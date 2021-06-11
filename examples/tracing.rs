@@ -5,17 +5,17 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd          } ,
-	async_nursery   :: { Nursery, NurseExt } ,
-	std             :: { time::Duration    } ,
-	futures_timer   :: { Delay             } ,
-	common          :: { DynResult         } ,
-	tracing_futures :: { Instrument        } ,
+	async_executors :: { AsyncStd                 } ,
+	async_nursery   :: { Nursery, NurseExt        } ,
+	common          :: { DynResult, setup_tracing } ,
+	futures_timer   :: { Delay                    } ,
+	std             :: { time::Duration           } ,
+	tracing_futures :: { Instrument               } ,
 
 	// just because we use tracing as a feature name, you don't have to do this.
 	//
-	tracing_crate   as tracing               ,
-	tracing         :: { info              } ,
+	tracing_crate   as tracing   ,
+	tracing         :: { info  } ,
 };
 
 
@@ -61,11 +61,7 @@ async fn slow() -> DynResult<()>
 //
 async fn main() -> DynResult<()>
 {
-	tracing_subscriber::fmt::Subscriber::builder()
-
-	   .with_max_level( tracing::Level::INFO )
-	   .init()
-	;
+	setup_tracing();
 
 	resource_await( 5 ).await?;
 

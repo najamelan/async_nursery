@@ -1,3 +1,6 @@
+//! Shows how you can save a nursery on a struct, so it's life and that of all spawned tasks is bound to it.
+//! The example doesn't do anything when run.
+//
 #![ allow( unreachable_code ) ]
 
 use
@@ -27,7 +30,7 @@ type DynResult<T> = Result<T, Box< dyn std::error::Error + Send + Sync + 'static
 pub struct Connection
 {
 	nursery: Box< dyn Nurse< DynResult<()> > + Send > ,
-	_handle : JoinHandle<DynResult<()>>,
+	_handle: JoinHandle<DynResult<()>>                ,
 }
 
 impl Connection

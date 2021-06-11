@@ -13,13 +13,13 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd          } ,
-	async_nursery   :: { Nursery, NurseExt } ,
-	log             :: { info, error       } ,
-	std             :: { time::Duration    } ,
-	futures_timer   :: { Delay             } ,
-	futures         :: { TryStreamExt      } ,
-	common          :: { DynResult         } ,
+	async_executors :: { AsyncStd                 } ,
+	async_nursery   :: { Nursery, NurseExt        } ,
+	tracing_crate   :: { info, error              } ,
+	std             :: { time::Duration           } ,
+	futures_timer   :: { Delay                    } ,
+	futures         :: { TryStreamExt             } ,
+	common          :: { DynResult, setup_tracing } ,
 };
 
 
@@ -86,7 +86,7 @@ async fn wrong() -> DynResult<()>
 //
 async fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let err = return_error().await;
 

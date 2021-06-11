@@ -15,11 +15,11 @@ use
 {
 	async_executors :: { TokioCtBuilder, LocalSpawnHandle } ,
 	async_nursery   :: { Nursery, LocalNurseExt           } ,
-	log             :: { info, error                      } ,
-	std             :: { time::Duration, rc::Rc           } ,
-	futures_timer   :: { Delay                            } ,
+	common          :: { DynResult, setup_tracing         } ,
 	futures         :: { TryStreamExt                     } ,
-	common          :: { DynResult                        } ,
+	futures_timer   :: { Delay                            } ,
+	std             :: { time::Duration, rc::Rc           } ,
+	tracing_crate   :: { info, error                      } ,
 };
 
 
@@ -80,7 +80,7 @@ async fn wrong() -> DynResult<()>
 
 fn main() -> DynResult<()>
 {
-	flexi_logger::Logger::with_str( "debug, async_std=warn" ).start().unwrap();
+	setup_tracing();
 
 	let exec = TokioCtBuilder::new().build()?;
 

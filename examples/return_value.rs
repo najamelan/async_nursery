@@ -12,8 +12,8 @@ use
 {
 	async_executors :: { AsyncStd                 } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt } ,
-	futures         :: { StreamExt                } ,
 	common          :: { DynResult                } ,
+	futures         :: { StreamExt                } ,
 };
 
 
