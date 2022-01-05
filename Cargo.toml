@@ -11,9 +11,20 @@ rustc_version = "^0.4"
 
 [dependencies]
 [dependencies.async_executors]
+optional = true
 version = "^0.4"
 
 [dependencies.futures]
+default-features = false
+optional = true
+version = "^0.3"
+
+[dependencies.futures-channel]
+default-features = false
+version = "^0.3"
+
+[dependencies.futures-task]
+default-features = false
 version = "^0.3"
 
 [dependencies.tracing-futures]
@@ -95,7 +106,8 @@ name = "tracing"
 required-features = ["not_wasm", "tracing"]
 
 [features]
-default = ["not_wasm"]
+default = ["not_wasm", "implementation"]
+implementation = ["futures", "async_executors"]
 not_wasm = []
 tracing = ["tracing-futures", "async_executors/tracing"]
 
@@ -104,7 +116,7 @@ authors = ["Naja Melan <najamelan@autistici.org>"]
 categories = ["asynchronous", "concurrency"]
 description = "Primitive for structured concurrency"
 documentation = "https://docs.rs/async_nursery"
-edition = "2018"
+edition = "2021"
 exclude = []
 keywords = ["async", "executor", "futures"]
 license = "Unlicense"

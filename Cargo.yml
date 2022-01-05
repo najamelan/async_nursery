@@ -34,7 +34,7 @@ package:
   keywords      : [ async, executor, futures ]
   categories    : [ asynchronous, concurrency ]
   license       : Unlicense
-  edition       : "2018"
+  edition       : "2021"
   exclude       : []
 
   metadata:
@@ -52,13 +52,20 @@ badges:
 
 features:
 
-  default: [ not_wasm ]
+  default: [ not_wasm, implementation ]
 
-  # Avoid compiling examples when doing wasm testing.
+  # Disabling this feature allows you to have only the traits without adding async_executors and the full futures crate
+  # as dependencies.
+  #
+  implementation: [ futures, async_executors ]
+
+  # Enable tracing instrumented support.
+  #
+  tracing: [ tracing-futures, async_executors/tracing ]
+
+  # Avoid compiling examples when doing wasm testing. You shouldn't need this in dependant crates.
   #
   not_wasm: []
-
-  tracing: [ tracing-futures, async_executors/tracing ]
 
 
 dependencies:
@@ -66,8 +73,10 @@ dependencies:
   # Public dependencies (bump major if changing any version number here)
   # Means we use types from these crates in our public API.
   #
-  futures        : { version: ^0.3 }
-  async_executors: { version: ^0.4 }
+  futures-channel: { version: ^0.3, default-features: false }
+  futures-task   : { version: ^0.3, default-features: false }
+  futures        : { version: ^0.3, default-features: false, optional: true }
+  async_executors: { version: ^0.4, optional: true }
   tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }
 
 

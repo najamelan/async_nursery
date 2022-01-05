@@ -5,7 +5,9 @@ use crate:: { import::*, Nurse, LocalNurse, NurseErr, NurseryStream };
 /// To manage the spawned tasks and await their output, see [`NurseryStream`].
 ///
 /// Will disconnect on drop. You can close all senders by calling `close_nursery`.
-///
+//
+#[ cfg_attr( nightly, doc(cfg( feature = "implementation" )) ) ]
+//
 #[ derive( Debug ) ]
 //
 pub struct Nursery<S, Out>
@@ -44,6 +46,19 @@ impl<S, Out> Nursery<S, Out>
 			Self{ spawner, tx }      ,
 			NurseryStream::new( rx ) ,
 		)
+	}
+
+
+	/// When dealing with an API that takes `SpawnHandle` and returns you a `JoinHandle`, you can use this
+	/// method to add the `JoinHandle` to your nursery.
+	//
+	pub fn nurse_handle( &self, handle: JoinHandle<Out> ) -> Result<(), NurseErr>
+	{
+		if self.tx.is_closed() { return Err( NurseErr::Closed ) }
+
+		self.tx.unbounded_send( handle )?;
+
+		Ok(())
 	}
 
 
