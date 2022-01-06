@@ -61,7 +61,7 @@ async fn main() -> DynResult<()>
 	(
 		ProgressStyle::default_bar()
 
-			.template( &"{prefix:.bold}▕{wide_bar:.green}▏{msg}".to_string() )
+			.template( "{prefix:.bold}▕{wide_bar:.green}▏{msg}" )
 	);
 
 	// don't forget.

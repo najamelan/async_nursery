@@ -1,8 +1,5 @@
-// See: https://github.com/rust-lang/rust/issues/44732#issuecomment-488766871
-//
 #![ cfg_attr( nightly, feature(doc_cfg) ) ]
-#![ cfg_attr( nightly, cfg_attr( nightly, doc = include_str!("../README.md") )) ]
-#![doc = ""] // empty doc line to handle missing doc warning when the feature is missing.
+#![ doc = include_str!("../README.md") ]
 
 #![ doc    ( html_root_url = "https://docs.rs/async_nursery" ) ]
 #![ forbid ( unsafe_code                                     ) ]
@@ -28,21 +25,24 @@
 
 mod error          ;
 mod nurse          ;
-mod nursery        ;
-mod nursery_stream ;
 mod local_nurse    ;
 
 pub use
 {
-	error          :: * ,
-	nurse          :: * ,
-	nursery        :: * ,
-	nursery_stream :: * ,
-	local_nurse    :: * ,
+	error       :: * ,
+	nurse       :: * ,
+	local_nurse :: * ,
 };
 
 #[ cfg( feature = "tracing" ) ] mod tracing;
 #[ cfg( feature = "tracing" ) ] pub use tracing::*;
+
+#[ cfg( feature = "implementation" ) ] mod nursery        ;
+#[ cfg( feature = "implementation" ) ] mod nursery_stream ;
+
+#[ cfg( feature = "implementation" ) ]
+//
+pub use { nursery::*, nursery_stream::* };
 
 // External dependencies
 //
@@ -50,12 +50,20 @@ mod import
 {
 	pub(crate) use
 	{
-		async_executors  :: { SpawnHandle, LocalSpawnHandle, JoinHandle                             } ,
-		futures          :: { ready, Stream, Sink, future::FusedFuture, stream::FusedStream         } ,
-		futures::channel :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
-		futures::task    :: { FutureObj, LocalFutureObj, SpawnError, Spawn, LocalSpawn              } ,
-		futures          :: { stream::FuturesUnordered                                              } ,
-		std              :: { task::{ Context, Poll }, pin::Pin, future::Future, sync::Arc, rc::Rc  } ,
+		futures_channel  :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
+		futures_task     :: { FutureObj, LocalFutureObj, SpawnError                                 } ,
+		std              :: { future::Future, sync::Arc, rc::Rc                                     } ,
+	};
+
+
+	#[ cfg( feature = "implementation" ) ]
+	//
+	pub(crate) use
+	{
+		async_executors  :: { SpawnHandle, LocalSpawnHandle, JoinHandle, Timer, TokioIo, SpawnBlocking, YieldNow, BlockingHandle, YieldNowFut } ,
+		futures          :: { ready, Stream, Sink, future::{ BoxFuture, FusedFuture }, stream::{ FusedStream, FuturesUnordered } } ,
+		futures_task     :: { Spawn, LocalSpawn } ,
+		std              :: { task::{ Context, Poll }, pin::Pin, time::Duration                                                  } ,
 	};
 }
 

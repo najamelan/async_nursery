@@ -7,6 +7,8 @@ use crate:: { import::* };
 ///
 #[ derive( Debug ) ]
 //
+#[ cfg_attr( nightly, doc(cfg( feature = "implementation" )) ) ]
+//
 pub struct NurseryStream<Out>
 {
 	rx       : UnboundedReceiver<JoinHandle<Out>> ,

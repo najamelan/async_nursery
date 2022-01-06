@@ -1,5 +1,6 @@
 # TODO
 - where possible, pass on extra traits from async_executors. eg, io and timer traits.
+- allow users to pass a joinhandle to the nursery instead of spawning on it.
 
 ## Chores
 

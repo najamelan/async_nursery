@@ -56,13 +56,12 @@ In Rust it is common to propagate errors up the call stack. If you spawn a task 
 - `NurseryStream` implements  `Future<Output=()>` if you just want to wait for everything to finish, but don't care for returned values.
 - `NurseryStream` basically manages `JoinHandle`s for you.
 - Can be backed by any executor that implements [`SpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.SpawnHandle.html) or [`LocalSpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.LocalSpawnHandle.html).
-- Cancels all running futures on drop.
+- Cancels all running futures on dropping `NurseryStrean`.
 - `Nursery` implements Sink for [`FutureObj`](https://docs.rs/futures/*/futures/task/struct.FutureObj.html) and/or [`LocalFutureObj`](https://docs.rs/futures/*/futures/task/struct.LocalFutureObj.html) as well as `Nurse` and `NurseExt`.
+- `Nursery` forwards async_executor traits from the wrapped executor. This works for `Timer`, `TokioIo`, `YieldNow` and `SpawnBlocking`. Note that when using `SpawnBlocking` like this, the nursery does not manage the tasks, it just let's you use the wrapped executor. 
 
 
 ## Missing features
-
-- **timeouts**: timers are quite tightly coupled with executors so it seems and there is no integration for timers in _async_executors_ yet. Both _tokio_ and _async-std_ have a `timeout` method and _futures-timer_ can work for anything else but will create a global timer thread and could have some overhead compared to executor specific implementations. However that's not much good for agnostic libraries. I will look into that, but until then you will have to choose your timeout implementation manually.
 
 - No API provided for **cooperative cancellation**. Since there is no support for that in `std::task::Context`, you must basically pass some cancellation token into a task __that needs to do cleanup and doesn't support being dropped at all await points__. Since it requires specific support of the spawned task, I leave this to the user. An example using an `AtomicBool` is included in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). The advantage is flexibility. You could cancel just certain tasks in the nursery and leave others running, or let the others be canceled by drop if they support it, etc. [Async drop](https://internals.rust-lang.org/t/asynchronous-destructors/11127) will most likely alleviate this pain one day, but it's not there yet.
 
@@ -77,14 +76,14 @@ With [cargo yaml](https://gitlab.com/storedbox/cargo-yaml):
 ```yaml
 dependencies:
 
-   async_nursery: ^0.3.0
+   async_nursery: ^0.4
 ```
 
 With Cargo.toml
 ```toml
 [dependencies]
 
-   async_nursery = "0.3.0"
+   async_nursery = "0.4"
 ```
 
 ### Upgrade
