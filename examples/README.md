@@ -14,6 +14,7 @@ These examples go over a number of different scenarios you might need in develop
 1. [subtask_ref](subtask_ref.rs): Pass references into function calls instead of cloning the `Nursery`.
 1. [subtask_spawn](subtask_spawn.rs): Let spawned tasks spawn subtasks on a nursery passed in.
 1. [single-thread](single_thread.rs): It all works single threaded too. Spawn !Send tasks.
+1. [timeout](timeout.rs): Give tasks a maximum run time.
 1. [wasm](wasm): It all works in wasm too.
 1. [type_bound](type_bound.rs): Shows how you can save a nursery on a struct, so it's life and that of all spawned tasks is bound to it. The example doesn't do anything when run.
 1. [tracing](tracing.rs): Shows how to create and use an tracing instrumented nursery.

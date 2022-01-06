@@ -157,6 +157,9 @@ example:
   - name             : subtask_spawn
     required-features: [ not_wasm ]
 
+  - name             : timeout
+    required-features: [ not_wasm ]
+
   - name             : type_bound
     required-features: [ not_wasm ]
 

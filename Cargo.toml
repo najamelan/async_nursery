@@ -98,6 +98,10 @@ name = "subtask_spawn"
 required-features = ["not_wasm"]
 
 [[example]]
+name = "timeout"
+required-features = ["not_wasm"]
+
+[[example]]
 name = "type_bound"
 required-features = ["not_wasm"]
 

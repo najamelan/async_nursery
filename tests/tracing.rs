@@ -2,13 +2,14 @@
 //
 // ✔ Verify close_nursery works.
 // - test Sink impl.
-// ✔ Verify traits are all available on Nursery.
+// ✔ test forwarding of traits on tracing types.
 //
-#![ cfg(not( target_arch = "wasm32" )) ]
+#![ cfg(all( not(target_arch = "wasm32"), feature = "tracing" )) ]
 
 mod common;
 use common::{ *, import::* };
-
+use tracing_futures::Instrument;
+use tracing_crate::info_span;
 
 
 // Verify close_nursery works.
@@ -28,12 +29,13 @@ use common::{ *, import::* };
 }
 
 
-// Verify traits are all available on Nursery.
+// Verify traits are all available on Instrumented.
 //
 #[async_std::test] async fn traits() -> DynResult<()>
 {
 	let (nursery, output) = Nursery::new( AsyncStd );
 
+	let nursery = nursery.instrument( info_span!( "instrumented" ) );
 	let three = nursery.spawn_blocking( ||{ 3 } ).await;
 
 		assert_eq!( three, 3 );

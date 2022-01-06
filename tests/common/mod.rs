@@ -11,7 +11,7 @@ pub mod import
 		async_nursery   :: { *                           } ,
 		futures         :: { StreamExt, TryStreamExt     } ,
 		tokio           :: { runtime::Builder            } ,
-		futures         :: { executor::block_on, SinkExt, channel::mpsc } ,
+		futures         :: { executor::block_on, SinkExt, channel::mpsc, task::SpawnExt } ,
 		std             :: { convert::TryFrom, rc::Rc, sync::{ Arc, atomic::{ AtomicBool, AtomicUsize, Ordering::SeqCst } } } ,
 		std             :: { time::Duration           } ,
 		futures_timer   :: { Delay                    } ,

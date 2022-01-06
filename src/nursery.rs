@@ -5,6 +5,11 @@ use crate:: { import::*, Nurse, LocalNurse, NurseErr, NurseryStream };
 /// To manage the spawned tasks and await their output, see [`NurseryStream`].
 ///
 /// Will disconnect on drop. You can close all senders by calling `close_nursery`.
+///
+/// Will implement async_executor traits if the executor does. Forwards [`Timer`], [`TokioIo`],
+/// [`YieldNow`] and [`SpawnBlocking`]. Note that the nursery doesn't actually manage the
+/// tasks spawned via `SpawnBlocking`. It just let's you use that functionality of the wrapped
+/// executor.
 //
 #[ cfg_attr( nightly, doc(cfg( feature = "implementation" )) ) ]
 //
@@ -210,3 +215,42 @@ impl<S, Out> Sink<LocalFutureObj<'static, Out>> for Nursery<S, Out>
 
 
 
+impl<S, Out> Timer for Nursery<S, Out> where S: Timer
+{
+	fn sleep( &self, dur: Duration ) -> BoxFuture<'static, ()>
+	{
+		self.spawner.sleep( dur )
+	}
+}
+
+
+
+impl<S, Out> TokioIo for Nursery<S, Out> where S: TokioIo {}
+
+
+
+impl<S, Out, R> SpawnBlocking<R> for Nursery<S, Out> where R: Send + 'static, S: SpawnBlocking<R>
+{
+	fn spawn_blocking<F>( &self, f: F ) -> BlockingHandle<R>
+
+		where F   : FnOnce() -> R + Send + 'static ,
+	         Self: Sized                          ,
+	{
+		self.spawner.spawn_blocking(f)
+	}
+
+
+	fn spawn_blocking_dyn( &self, f: Box< dyn FnOnce()->R + Send > ) -> BlockingHandle<R>
+	{
+		self.spawner.spawn_blocking_dyn(f)
+	}
+}
+
+
+impl<S, Out> YieldNow for Nursery<S, Out> where S: YieldNow
+{
+	fn yield_now( &self ) -> YieldNowFut
+	{
+		self.spawner.yield_now()
+	}
+}
