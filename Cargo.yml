@@ -76,7 +76,7 @@ dependencies:
   futures-channel: { version: ^0.3, default-features: false }
   futures-task   : { version: ^0.3, default-features: false }
   futures        : { version: ^0.3, default-features: false, optional: true }
-  async_executors: { version: ^0.4, optional: true }
+  async_executors: { version: ^0.5, optional: true }
   tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }
 
 
@@ -97,7 +97,7 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.4, features: [ async_std, tokio_ct, tokio_tp ] }
+      async_executors: { version: ^0.5, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1, features: [ attributes ] }
       indicatif      : ^0.16
       log            : ^0.4
@@ -107,7 +107,7 @@ target:
 
     dev-dependencies:
 
-      async_executors  : { version: ^0.4, features: [ bindgen ]      }
+      async_executors  : { version: ^0.5, features: [ bindgen ]      }
       futures-timer    : { version: ^3  , features: [ wasm-bindgen ] }
       wasm-bindgen-test: ^0.3
 
