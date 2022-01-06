@@ -4,6 +4,22 @@
 
   [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.3.1...dev
 
+## [0.4.0] - 2021-06-11
+
+  [0.4.0]: https://github.com/najamelan/async_nursery/compare/0.3.1...0.4.0
+  
+## Added
+  - a default feature "implementation" that allows to get only the traits when
+    depending with `default-features: false`. This will shed some dependencies.
+  - Forward all new traits from async_executors on the `Nursery`, so now 
+    `Timer`, `TokioIo`, `SpawnBlocking` and `YieldNow` are now available on
+    the `Nursery` and the tracing wrappers when the wrapped executor provides those.
+    Note that blocking tasks spawned with `SpawnBlocking` are not managed by
+    the nursery. In any case they can't be interrupted once they start running.
+
+## Updated
+  - **BREAKING**: Updated _async_executors_ to 0.5.
+
 ## [0.3.1] - 2021-06-11
 
   [0.3.1]: https://github.com/najamelan/async_nursery/compare/0.3.0...0.3.1

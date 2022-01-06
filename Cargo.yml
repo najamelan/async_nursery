@@ -10,6 +10,7 @@ package:
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
   #
   # - `touch **.rs && cargo clippy --tests --examples --benches --all-features`
+  # - `cargo outdated --root-deps-only`
   # - `cargo update`
   # - `cargo udeps --all-targets --all-features`
   # - `cargo audit`
@@ -24,7 +25,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.3.1
+  version       : 0.4.0
   name          : async_nursery
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Primitive for structured concurrency
@@ -87,7 +88,7 @@ dev-dependencies:
   tokio             : { version: ^1, features: [ sync ] }
   futures-timer     : ^3
   rand              : ^0.8
-  tracing-subscriber: { version: ^0.2, default-features: false, features: [ fmt, env-filter ] }
+  tracing-subscriber: { version: ^0.3.5, default-features: false, features: [ fmt, env-filter ] }
   tracing_crate     : { version: ^0.1, package: tracing }
 
 
