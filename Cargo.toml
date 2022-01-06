@@ -36,6 +36,10 @@ version = "^0.2"
 futures-timer = "^3"
 rand = "^0.8"
 
+[dev-dependencies.futures]
+default-features = true
+version = "^0.3"
+
 [dev-dependencies.tokio]
 features = ["sync"]
 version = "^1"
