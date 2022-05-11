@@ -133,7 +133,7 @@ license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_nursery"
-version = "0.4.0"
+version = "0.4.1"
 
 [package.metadata]
 [package.metadata.docs]

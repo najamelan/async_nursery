@@ -2,9 +2,16 @@
 
 ## [Unreleased]
 
-  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.3.1...dev
+  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.4.1...dev
 
-## [0.4.0] - 2021-06-11
+## [0.4.0] - 2022-05-11
+
+  [0.4.1]: https://github.com/najamelan/async_nursery/compare/0.4.0...0.4.1
+  
+## Fixed
+  - Properly require features on our dependencies when we dont have all features enabled.
+
+## [0.4.0] - 2021-01-06
 
   [0.4.0]: https://github.com/najamelan/async_nursery/compare/0.3.1...0.4.0
   
