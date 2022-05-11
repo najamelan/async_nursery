@@ -1,3 +1,5 @@
+#![ cfg( feature = "implementation" ) ]
+
 // Tested:
 //
 // ✔ Verify close_nursery works.

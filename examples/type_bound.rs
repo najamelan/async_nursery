@@ -1,7 +1,7 @@
 //! Shows how you can save a nursery on a struct, so it's life and that of all spawned tasks is bound to it.
 //! The example doesn't do anything when run.
 //
-#![ allow( unreachable_code ) ]
+#![ allow( unreachable_code, clippy::map_identity ) ]
 
 use
 {

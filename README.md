@@ -56,7 +56,7 @@ In Rust it is common to propagate errors up the call stack. If you spawn a task 
 - `NurseryStream` implements  `Future<Output=()>` if you just want to wait for everything to finish, but don't care for returned values.
 - `NurseryStream` basically manages `JoinHandle`s for you.
 - Can be backed by any executor that implements [`SpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.SpawnHandle.html) or [`LocalSpawnHandle`](https://docs.rs/async_executors/*/async_executors/trait.LocalSpawnHandle.html).
-- Cancels all running futures on dropping `NurseryStrean`.
+- Cancels all running futures on dropping `NurseryStream`.
 - `Nursery` implements Sink for [`FutureObj`](https://docs.rs/futures/*/futures/task/struct.FutureObj.html) and/or [`LocalFutureObj`](https://docs.rs/futures/*/futures/task/struct.LocalFutureObj.html) as well as `Nurse` and `NurseExt`.
 - `Nursery` forwards async_executor traits from the wrapped executor. This works for `Timer`, `TokioIo`, `YieldNow` and `SpawnBlocking`. Note that when using `SpawnBlocking` like this, the nursery does not manage the tasks, it just let's you use the wrapped executor. 
 
@@ -117,7 +117,7 @@ All tasks spawned on a nursery must have the same `Future::Output` type.
 
 There is an extensive list of examples for all kinds of patterns of using _async_nursery_ in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). Please have a look at them.
 
-```rust
+```rust, ignore
 use
 {
    async_nursery   :: { Nursery, NurseExt } ,

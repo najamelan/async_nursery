@@ -1,3 +1,5 @@
+#![ cfg( feature = "implementation" ) ]
+
 // Tested:
 //
 // ✔ Spawned tasks have finished when awaited. Multi thread.

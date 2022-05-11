@@ -50,7 +50,7 @@ mod import
 {
 	pub(crate) use
 	{
-		futures_channel  :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded, TrySendError } } ,
+		futures_channel  :: { mpsc::TrySendError } ,
 		futures_task     :: { FutureObj, LocalFutureObj, SpawnError                                 } ,
 		std              :: { future::Future, sync::Arc, rc::Rc                                     } ,
 	};
@@ -61,9 +61,10 @@ mod import
 	pub(crate) use
 	{
 		async_executors  :: { SpawnHandle, LocalSpawnHandle, JoinHandle, Timer, TokioIo, SpawnBlocking, YieldNow, BlockingHandle, YieldNowFut } ,
-		futures          :: { ready, Stream, Sink, future::{ BoxFuture, FusedFuture }, stream::{ FusedStream, FuturesUnordered } } ,
-		futures_task     :: { Spawn, LocalSpawn } ,
-		std              :: { task::{ Context, Poll }, pin::Pin, time::Duration                                                  } ,
+		futures          :: { ready, Stream, Sink, future::{ BoxFuture, FusedFuture }, stream::{ FusedStream, FuturesUnordered }              } ,
+		futures_channel  :: { mpsc::{ UnboundedSender, UnboundedReceiver, unbounded }                                                         } ,
+		futures_task     :: { Spawn, LocalSpawn                                                                                               } ,
+		std              :: { task::{ Context, Poll }, pin::Pin, time::Duration                                                               } ,
 	};
 }
 

@@ -1,3 +1,5 @@
+#![ cfg( feature = "implementation" ) ]
+
 // Tested:
 //
 // ✔ Mix spawning and consuming.

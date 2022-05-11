@@ -9,3 +9,6 @@ set -e
 set -x
 
 cargo test --all-features
+cargo test --no-default-features
+cargo test --no-default-features --features "tracing"
+cargo test --no-default-features --features "implementation"
