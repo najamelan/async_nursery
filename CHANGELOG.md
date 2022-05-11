@@ -2,9 +2,16 @@
 
 ## [Unreleased]
 
-  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.4.1...dev
+  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.5.0...dev
 
-## [0.4.0] - 2022-05-11
+## [0.5.0] - 2022-05-11
+
+  [0.5.0]: https://github.com/najamelan/async_nursery/compare/0.4.1...0.5.0
+  
+## Updated
+  - **BREAKING**: Updated _async_executors_ to 0.6.
+
+## [0.4.1] - 2022-05-11
 
   [0.4.1]: https://github.com/najamelan/async_nursery/compare/0.4.0...0.4.1
   
