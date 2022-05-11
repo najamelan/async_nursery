@@ -62,7 +62,7 @@ features:
 
   # Enable tracing instrumented support.
   #
-  tracing: [ tracing-futures, async_executors/tracing ]
+  tracing: [ tracing-futures, async_executors/tracing, futures ]
 
   # Avoid compiling examples when doing wasm testing. You shouldn't need this in dependant crates.
   #
@@ -74,8 +74,8 @@ dependencies:
   # Public dependencies (bump major if changing any version number here)
   # Means we use types from these crates in our public API.
   #
-  futures-channel: { version: ^0.3, default-features: false }
-  futures-task   : { version: ^0.3, default-features: false }
+  futures-channel: { version: ^0.3, default-features: false, features: [ std ] }
+  futures-task   : { version: ^0.3, default-features: false, features: [ alloc ] }
   futures        : { version: ^0.3, default-features: false, optional: true }
   async_executors: { version: ^0.5, optional: true }
   tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }

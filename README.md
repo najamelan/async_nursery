@@ -117,7 +117,7 @@ All tasks spawned on a nursery must have the same `Future::Output` type.
 
 There is an extensive list of examples for all kinds of patterns of using _async_nursery_ in the [examples directory](https://github.com/najamelan/async_nursery/blob/master/examples). Please have a look at them.
 
-```rust
+```rust, ignore
 use
 {
    async_nursery   :: { Nursery, NurseExt } ,

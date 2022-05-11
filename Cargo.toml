@@ -21,10 +21,12 @@ version = "^0.3"
 
 [dependencies.futures-channel]
 default-features = false
+features = ["std"]
 version = "^0.3"
 
 [dependencies.futures-task]
 default-features = false
+features = ["alloc"]
 version = "^0.3"
 
 [dependencies.tracing-futures]
@@ -117,7 +119,7 @@ required-features = ["not_wasm", "tracing"]
 default = ["not_wasm", "implementation"]
 implementation = ["futures", "async_executors"]
 not_wasm = []
-tracing = ["tracing-futures", "async_executors/tracing"]
+tracing = ["tracing-futures", "async_executors/tracing", "futures"]
 
 [package]
 authors = ["Naja Melan <najamelan@autistici.org>"]

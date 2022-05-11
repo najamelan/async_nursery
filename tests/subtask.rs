@@ -1,3 +1,5 @@
+#![ cfg( feature = "implementation" ) ]
+
 // Tested:
 //
 // ✔ pass nursery to a function as reference
