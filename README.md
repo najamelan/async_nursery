@@ -37,17 +37,17 @@ _async_nursery_ brings a structured concurrency primitive to Rust. There are thr
 
 ### 1. A sane control flow for concurrent programs.
 
-[Notes on structured concurrency, or: Go statement considered harmful](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/) by Nathaniel J. Smith explains this exquisitely. To summarize, if a function wants to split of and do some work concurrently, make sure that all it's child tasks are finished when the function returns. That way it functions as the black box we are used to from synchronous code. A function has inputs and a return value, and when it is done, no code it created is running anymore.
+[Notes on structured concurrency, or: Go statement considered harmful](https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/) by Nathaniel J. Smith explains this exquisitely. To summarize, if a function wants to split off and do some work concurrently, make sure that all its child tasks are finished when the function returns. That way it functions as the black box we are used to from synchronous code. A function has inputs and a return value, and when it is done, no code it created is running anymore.
 
 You could already do this by stuffing `JoinHandle`s from _async_executors_ in a `FuturesUnordered`, but as we will see below, _async_nursery_ is a bit more flexible and convenient. As opposed to the `JoinHandle`s from _tokio_ or _async-std_ directly, the ones from _async_executors_ do not detach on drop by default.
 
 ### 2. Prevent resource leakage.
 
-Orphaned tasks, spawned without a JoinHandle can potentially stay alive forever, either running in loops, or deadlocking. Structured concurrency makes sure there are no leaks, putting all resources neatly in a call tree, very similar to a call stack. In a call tree, a stack frame can be several stack frames sitting side by side doing things concurrently, but when we return to the previous stack frame, all of them are done.
+Orphaned tasks, spawned without a `JoinHandle` can potentially stay alive forever, either running in loops, or deadlocking. Structured concurrency makes sure there are no leaks, putting all resources neatly in a call tree, very similar to a call stack. In a call tree, a stack frame can be several stack frames sitting side by side doing things concurrently, but when we return to the previous stack frame, all of them are done.
 
 ### 3. Propagate errors
 
-In Rust it is common to propagate errors up the call stack. If you spawn a task and let it run off in the void, you need out of band error handling like channels. In structured concurrency, since all tasks get joined before their parent returns, you can return the errors just like in sync code. It is also possible to cancel all sibling tasks if one task runs into an error.
+In Rust it is common to propagate errors up the call stack. If you spawn a task and let it run off into the void, you need out-of-band error handling like channels. In structured concurrency, since all tasks get joined before their parent returns, you can return the errors just like in sync code. It is also possible to cancel all sibling tasks if one task runs into an error.
 
 ## Properties of _async_nursery_:
 
