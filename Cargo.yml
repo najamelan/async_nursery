@@ -101,7 +101,7 @@ target:
 
       async_executors: { version: ^0.6, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1, features: [ attributes ] }
-      indicatif      : ^0.16
+      indicatif      : ^0.17
       log            : ^0.4
 
 

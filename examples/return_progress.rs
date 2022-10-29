@@ -62,6 +62,7 @@ async fn main() -> DynResult<()>
 		ProgressStyle::default_bar()
 
 			.template( "{prefix:.bold}▕{wide_bar:.green}▏{msg}" )
+			.expect( "correct template for indicatif" )
 	);
 
 	// don't forget.
