@@ -1,7 +1,7 @@
 # async_nursery
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-[![Build Status](https://api.travis-ci.org/najamelan/async_nursery.svg?branch=master)](https://travis-ci.org/najamelan/async_nursery)
+[![Build Status](https://img.shields.io/github/checks-status/najamelan/async_nursery/master)](https://github.com/najamelan/async_nursery/actions)
 [![Docs](https://docs.rs/async_nursery/badge.svg)](https://docs.rs/async_nursery)
 [![crates.io](https://img.shields.io/crates/v/async_nursery.svg)](https://crates.io/crates/async_nursery)
 
