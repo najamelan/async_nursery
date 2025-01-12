@@ -4,7 +4,7 @@ package:
   #
   # - last check for all TODO, FIXME, expect, unwrap.
   # - recheck log statements (informative, none left that were just for development, ...)
-  # - `cargo +nightly doc` and re-read and final polish of documentation.
+  # - `cargo +nightly doc --no-deps --all-features --open` and re-read and final polish of documentation.
   #
   # - Update CHANGELOG.md.
   # - Update version numbers in Cargo.yml, Cargo.toml, install section of readme.
@@ -25,7 +25,7 @@ package:
   # - `git tag x.x.x` with version number.
   # - `git push && git push --tags`
   #
-  version       : 0.5.0
+  version       : 0.6.0
   name          : async_nursery
   authors       : [ Naja Melan <najamelan@autistici.org> ]
   description   : Primitive for structured concurrency
@@ -77,7 +77,7 @@ dependencies:
   futures-channel: { version: ^0.3, default-features: false, features: [ std ] }
   futures-task   : { version: ^0.3, default-features: false, features: [ alloc ] }
   futures        : { version: ^0.3, default-features: false, optional: true }
-  async_executors: { version: ^0.6, optional: true }
+  async_executors: { version: ^0.7, optional: true }
   tracing-futures: { version: ^0.2, optional: true, features: [futures-03] }
 
 
@@ -99,9 +99,9 @@ target:
 
     dev-dependencies:
 
-      async_executors: { version: ^0.6, features: [ async_std, tokio_ct, tokio_tp ] }
+      async_executors: { version: ^0.7, features: [ async_std, tokio_ct, tokio_tp ] }
       async-std      : { version: ^1, features: [ attributes ] }
-      indicatif      : ^0.16
+      indicatif      : ^0.17
       log            : ^0.4
 
 
@@ -109,7 +109,10 @@ target:
 
     dev-dependencies:
 
-      async_executors  : { version: ^0.6, features: [ bindgen ]      }
+      async_executors  : { version: ^0.7, features: [ bindgen ]      }
+      # This is required as its a dependency of rand and they don't support wasm
+      # out of the box. Prob need to keep at same version as rand depends on.
+      getrandom        : { version: ^0.2, features: [ js ]           }
       futures-timer    : { version: ^3  , features: [ wasm-bindgen ] }
       wasm-bindgen-test: ^0.3
 

@@ -9,7 +9,7 @@
 
 mod common;
 
-use common::{ import::*, DynResult };
+use common::{ import::*, DynSendResult };
 
 
 
@@ -17,7 +17,7 @@ use common::{ import::*, DynResult };
 //
 #[ async_std::test ]
 //
-async fn mixed_spawn_consume() -> DynResult<()>
+async fn mixed_spawn_consume() -> DynSendResult<()>
 {
 	let (nursery, mut output) = Nursery::new( AsyncStd );
 	let mut accu    = 0;
@@ -41,9 +41,9 @@ async fn mixed_spawn_consume() -> DynResult<()>
 //
 #[ async_std::test ]
 //
-async fn mixed_spawn_consume_concurrent() -> DynResult<()>
+async fn mixed_spawn_consume_concurrent() -> DynSendResult<()>
 {
-	async fn spawner( nursery: Nursery<AsyncStd, usize> ) -> DynResult<()>
+	async fn spawner( nursery: Nursery<AsyncStd, usize> ) -> DynSendResult<()>
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 

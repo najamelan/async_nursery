@@ -13,13 +13,13 @@ mod common;
 
 use
 {
-	async_executors :: { TokioCtBuilder, LocalSpawnHandle } ,
-	async_nursery   :: { Nursery, LocalNurseExt           } ,
-	common          :: { DynResult, setup_tracing         } ,
-	futures         :: { TryStreamExt                     } ,
-	futures_timer   :: { Delay                            } ,
-	std             :: { time::Duration, rc::Rc           } ,
-	tracing_crate   :: { info, error                      } ,
+	async_executors :: { TokioCt, LocalSpawnHandle } ,
+	async_nursery   :: { Nursery, LocalNurseExt    } ,
+	common          :: { DynResult, setup_tracing  } ,
+	futures         :: { TryStreamExt              } ,
+	futures_timer   :: { Delay                     } ,
+	std             :: { time::Duration, rc::Rc    } ,
+	tracing_crate   :: { info, error               } ,
 };
 
 
@@ -82,7 +82,7 @@ fn main() -> DynResult<()>
 {
 	setup_tracing();
 
-	let exec = TokioCtBuilder::new().build()?;
+	let exec = TokioCt::new()?;
 
 	let err = exec.block_on( return_error( exec.clone() ) );
 

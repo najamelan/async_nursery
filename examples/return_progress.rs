@@ -9,6 +9,10 @@
 //!
 //! ███████████████████████████████████████████████████████████████████████████████████████████████████▏1000/1000 jobs done.
 //!
+
+// fails on the progress style template in nightly
+#![allow(clippy::literal_string_with_formatting_args)]
+
 mod common;
 
 use
@@ -62,6 +66,7 @@ async fn main() -> DynResult<()>
 		ProgressStyle::default_bar()
 
 			.template( "{prefix:.bold}▕{wide_bar:.green}▏{msg}" )
+			.expect( "correct template for indicatif" )
 	);
 
 	// don't forget.

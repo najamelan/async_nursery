@@ -21,17 +21,17 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd, TimerExt       } ,
-	async_nursery   :: { Nursery, NurseExt        } ,
-	common          :: { DynResult, setup_tracing } ,
-	futures_timer   :: { Delay                    } ,
-	std             :: { time::Duration           } ,
-	tracing_crate   :: { info                     } ,
+	async_executors :: { AsyncStd, TimerExt           } ,
+	async_nursery   :: { Nursery, NurseExt            } ,
+	common          :: { DynSendResult, setup_tracing } ,
+	futures_timer   :: { Delay                        } ,
+	std             :: { time::Duration               } ,
+	tracing_crate   :: { info                         } ,
 };
 
 
 
-async fn resource_await( amount: usize ) -> DynResult<()>
+async fn resource_await( amount: usize ) -> DynSendResult<()>
 {
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 	let delay = Duration::from_secs(2);
@@ -58,7 +58,7 @@ async fn resource_await( amount: usize ) -> DynResult<()>
 
 
 
-async fn slow( seconds: usize ) -> DynResult<()>
+async fn slow( seconds: usize ) -> DynSendResult<()>
 {
 	info!( "spawned slow {}", seconds );
 
@@ -73,7 +73,7 @@ async fn slow( seconds: usize ) -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

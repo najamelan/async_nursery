@@ -34,15 +34,11 @@ pub use
 	local_nurse :: * ,
 };
 
-#[ cfg( feature = "tracing" ) ] mod tracing;
-#[ cfg( feature = "tracing" ) ] pub use tracing::*;
-
+#[ cfg( feature = "tracing"        ) ] mod tracing        ;
 #[ cfg( feature = "implementation" ) ] mod nursery        ;
 #[ cfg( feature = "implementation" ) ] mod nursery_stream ;
 
-#[ cfg( feature = "implementation" ) ]
-//
-pub use { nursery::*, nursery_stream::* };
+#[ cfg( feature = "implementation" ) ] pub use { nursery::*, nursery_stream::* };
 
 // External dependencies
 //

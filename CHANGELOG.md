@@ -2,7 +2,15 @@
 
 ## [Unreleased]
 
-  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.5.0...dev
+  [Unreleased]: https://github.com/najamelan/async_nursery/compare/0.6.0...dev
+
+## [0.6.0] - 2025-01-12
+
+  [0.6.0]: https://github.com/najamelan/async_nursery/compare/0.5.0...0.6.0
+  
+## Updated
+  - **BREAKING**: Updated _async_executors_ to 0.7. Note that TokioCt now throws
+    an error that is not `Send`.
 
 ## [0.5.0] - 2022-05-11
 

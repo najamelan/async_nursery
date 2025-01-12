@@ -18,9 +18,9 @@ use common::{ *, import::* };
 //
 #[ async_std::test ]
 //
-async fn outlive_method() -> DynResult<()>
+async fn outlive_method() -> DynSendResult<()>
 {
-	fn outlive( nursery: &Nursery<AsyncStd, usize> ) -> DynResult<()>
+	fn outlive( nursery: &Nursery<AsyncStd, usize> ) -> DynSendResult<()>
 	{
 		nursery.nurse( async { 5 + 5 } )?;
 		nursery.nurse( async { 5 + 5 } )?;
@@ -53,7 +53,7 @@ async fn outlive_method() -> DynResult<()>
 		Ok(())
 	}
 
-	let exec              = TokioCtBuilder::new().build()?;
+	let exec              = TokioCt::new()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	outlive( &nursery )?;
@@ -72,9 +72,9 @@ async fn outlive_method() -> DynResult<()>
 //
 #[ async_std::test ]
 //
-async fn outlive_spawn() -> DynResult<()>
+async fn outlive_spawn() -> DynSendResult<()>
 {
-	async fn subtask( value: Arc<AtomicUsize> ) -> DynResult<()>
+	async fn subtask( value: Arc<AtomicUsize> ) -> DynSendResult<()>
 	{
 		Delay::new( Duration::from_millis(10) ).await;
 
@@ -83,7 +83,7 @@ async fn outlive_spawn() -> DynResult<()>
 		Ok(())
 	}
 
-	async fn outlive( value: Arc<AtomicUsize>, nursery: impl Nurse< DynResult<()> > + Send + 'static ) -> DynResult<()>
+	async fn outlive( value: Arc<AtomicUsize>, nursery: impl Nurse< DynSendResult<()> > + Send + 'static ) -> DynSendResult<()>
 	{
 		nursery.nurse( subtask( value.clone() ) )?;
 		nursery.nurse( subtask( value.clone() ) )?;
@@ -112,7 +112,7 @@ async fn outlive_spawn() -> DynResult<()>
 //
 #[test] fn outlive_spawn_local() -> DynResult<()>
 {
-	async fn subtask( value: Rc<AtomicUsize> ) -> DynResult<()>
+	async fn subtask( value: Rc<AtomicUsize> ) -> DynSendResult<()>
 	{
 		Delay::new( Duration::from_millis(10) ).await;
 
@@ -121,7 +121,7 @@ async fn outlive_spawn() -> DynResult<()>
 		Ok(())
 	}
 
-	async fn outlive( value: Rc<AtomicUsize>, nursery: impl LocalNurse< DynResult<()> > + 'static ) -> DynResult<()>
+	async fn outlive( value: Rc<AtomicUsize>, nursery: impl LocalNurse< DynSendResult<()> > + 'static ) -> DynSendResult<()>
 	{
 		nursery.nurse_local( subtask( value.clone() ) )?;
 		nursery.nurse_local( subtask( value.clone() ) )?;
@@ -133,7 +133,7 @@ async fn outlive_spawn() -> DynResult<()>
 	}
 
 	let sum               = Rc::new( AtomicUsize::new(0) );
-	let exec              = TokioCtBuilder::new().build()?;
+	let exec              = TokioCt::new()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	nursery.nurse_local( outlive( sum.clone(), nursery.clone() ) )?;

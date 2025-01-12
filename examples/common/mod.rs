@@ -8,7 +8,8 @@ use
 };
 
 
-pub type DynResult<T> = Result<T, Box< dyn std::error::Error + Send + Sync + 'static >>;
+pub type DynResult<T>     = Result<T, Box< dyn std::error::Error + 'static >>;
+pub type DynSendResult<T> = Result<T, Box< dyn std::error::Error + Send + Sync + 'static >>;
 
 
 // Will print something when dropped.
