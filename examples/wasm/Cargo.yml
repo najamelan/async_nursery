@@ -14,12 +14,12 @@ lib:
 
 dependencies:
 
-  async_executors   : { version: ^0.2, features: [ bindgen, spawn_handle ] }
+  async_executors   : { version: ^0.7, features: [ bindgen ] }
   async_nursery     : { path: ../.. }
   futures-timer     : { version: ^3, features: [ wasm-bindgen ] }
 
   log                 : ^0.4
-  console_log         : ^0.1
+  console_log         : ^1
   futures             : ^0.3
   wasm-bindgen        : ^0.2
   wasm-bindgen-futures: ^0.4
