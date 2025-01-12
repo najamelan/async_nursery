@@ -12,7 +12,7 @@ rustc_version = "^0.4"
 [dependencies]
 [dependencies.async_executors]
 optional = true
-version = "^0.6"
+version = "^0.7"
 
 [dependencies.futures]
 default-features = false
@@ -133,7 +133,7 @@ license = "Unlicense"
 name = "async_nursery"
 readme = "README.md"
 repository = "https://github.com/najamelan/async_nursery"
-version = "0.5.0"
+version = "0.6.0"
 
 [package.metadata]
 [package.metadata.docs]
@@ -148,11 +148,15 @@ wasm-bindgen-test = "^0.3"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.async_executors]
 features = ["bindgen"]
-version = "^0.6"
+version = "^0.7"
 
 [target."cfg( target_arch = \"wasm32\" )".dev-dependencies.futures-timer]
 features = ["wasm-bindgen"]
 version = "^3"
+
+[target."cfg( target_arch = \"wasm32\" )".dev-dependencies.getrandom]
+features = ["js"]
+version = "^0.2"
 
 [target."cfg(not( target_arch = \"wasm32\" ))"]
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies]
@@ -165,4 +169,4 @@ version = "^1"
 
 [target."cfg(not( target_arch = \"wasm32\" ))".dev-dependencies.async_executors]
 features = ["async_std", "tokio_ct", "tokio_tp"]
-version = "^0.6"
+version = "^0.7"

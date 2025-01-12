@@ -22,17 +22,17 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd                 } ,
-	async_nursery   :: { Nursery, Nurse, NurseExt } ,
-	common          :: { DynResult, setup_tracing } ,
-	futures_timer   :: { Delay                    } ,
-	std             :: { time::Duration           } ,
-	tracing_crate   :: { info                     } ,
+	async_executors :: { AsyncStd                     } ,
+	async_nursery   :: { Nursery, Nurse, NurseExt     } ,
+	common          :: { DynSendResult, setup_tracing } ,
+	futures_timer   :: { Delay                        } ,
+	std             :: { time::Duration               } ,
+	tracing_crate   :: { info                         } ,
 };
 
 
 
-async fn subtask_spawn( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> DynResult<()>
+async fn subtask_spawn( amount: usize, nursery: impl Nurse<DynSendResult<()>> ) -> DynSendResult<()>
 {
 	for i in 1..=amount
 	{
@@ -47,7 +47,7 @@ async fn subtask_spawn( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> D
 
 // This wants to linger around for an entire minute...zzz
 //
-async fn slow( i: usize ) -> DynResult<()>
+async fn slow( i: usize ) -> DynSendResult<()>
 {
 	info!( "spawned slow: {}", i );
 
@@ -62,7 +62,7 @@ async fn slow( i: usize ) -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

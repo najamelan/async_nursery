@@ -5,12 +5,12 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd                 } ,
-	async_nursery   :: { Nursery, NurseExt        } ,
-	common          :: { DynResult, setup_tracing } ,
-	futures_timer   :: { Delay                    } ,
-	std             :: { time::Duration           } ,
-	tracing_futures :: { Instrument               } ,
+	async_executors :: { AsyncStd                     } ,
+	async_nursery   :: { Nursery, NurseExt            } ,
+	common          :: { DynSendResult, setup_tracing } ,
+	futures_timer   :: { Delay                        } ,
+	std             :: { time::Duration               } ,
+	tracing_futures :: { Instrument                   } ,
 
 	// just because we use tracing as a feature name, you don't have to do this.
 	//
@@ -20,7 +20,7 @@ use
 
 
 
-async fn resource_await( amount: usize ) -> DynResult<()>
+async fn resource_await( amount: usize ) -> DynSendResult<()>
 {
 	let (nursery, output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 	let nursery = nursery.instrument( tracing::info_span!( "tracing-example" ) );
@@ -46,7 +46,7 @@ async fn resource_await( amount: usize ) -> DynResult<()>
 
 
 
-async fn slow() -> DynResult<()>
+async fn slow() -> DynSendResult<()>
 {
 	info!( "spawned slow" );
 
@@ -59,7 +59,7 @@ async fn slow() -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

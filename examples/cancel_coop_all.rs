@@ -20,7 +20,7 @@ use
 {
 	async_executors :: { AsyncStd                           } ,
 	async_nursery   :: { Nursery, Nurse, NurseExt, NurseErr } ,
-	common          :: { DynResult, setup_tracing           } ,
+	common          :: { DynSendResult, setup_tracing       } ,
 	futures_timer   :: { Delay                              } ,
 	std             :: { time::Duration                     } ,
 	tracing_crate   :: { info                               } ,
@@ -28,7 +28,7 @@ use
 
 
 
-async fn cancel_coop_all( amount: usize, nursery: impl Nurse<DynResult<()>> ) -> DynResult<()>
+async fn cancel_coop_all( amount: usize, nursery: impl Nurse<DynSendResult<()>> ) -> DynSendResult<()>
 {
 	// We will stop spawning new subtasks when the nursery is closed.
 	//
@@ -57,7 +57,7 @@ async fn cancel_coop_all( amount: usize, nursery: impl Nurse<DynResult<()>> ) ->
 
 // This wants to linger around for an entire 3 seconds...zzz
 //
-async fn slow( i: usize ) -> DynResult<()>
+async fn slow( i: usize ) -> DynSendResult<()>
 {
 	info!( "spawned slow: {}", i );
 
@@ -72,7 +72,7 @@ async fn slow( i: usize ) -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

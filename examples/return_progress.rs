@@ -9,6 +9,10 @@
 //!
 //! ███████████████████████████████████████████████████████████████████████████████████████████████████▏1000/1000 jobs done.
 //!
+
+// fails on the progress style template in nightly
+#![allow(clippy::literal_string_with_formatting_args)]
+
 mod common;
 
 use

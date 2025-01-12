@@ -30,6 +30,7 @@ use common::{ *, import::* };
 }
 
 
+
 // Verify traits are all available on Nursery.
 //
 #[async_std::test] async fn traits() -> DynResult<()>
@@ -39,7 +40,6 @@ use common::{ *, import::* };
 	let three = nursery.spawn_blocking( ||{ 3 } ).await;
 
 		assert_eq!( three, 3 );
-
 
 	nursery.yield_now().await;
 	nursery.spawn( async {} )?;

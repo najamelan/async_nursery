@@ -13,17 +13,17 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd                 } ,
-	async_nursery   :: { Nursery, NurseExt        } ,
-	tracing_crate   :: { info, error              } ,
-	std             :: { time::Duration           } ,
-	futures_timer   :: { Delay                    } ,
-	futures         :: { TryStreamExt             } ,
-	common          :: { DynResult, setup_tracing } ,
+	async_executors :: { AsyncStd                     } ,
+	async_nursery   :: { Nursery, NurseExt            } ,
+	common          :: { DynSendResult, setup_tracing } ,
+	futures         :: { TryStreamExt                 } ,
+	futures_timer   :: { Delay                        } ,
+	std             :: { time::Duration               } ,
+	tracing_crate   :: { info, error                  } ,
 };
 
 
-async fn return_error() -> DynResult<()>
+async fn return_error() -> DynSendResult<()>
 {
 	let (nursery, mut output) = Nursery::new( AsyncStd ); info!( "nursery created" );
 
@@ -58,7 +58,7 @@ async fn return_error() -> DynResult<()>
 
 // Linger.
 //
-async fn slow() -> DynResult<()>
+async fn slow() -> DynSendResult<()>
 {
 	info!( "spawned slow." );
 
@@ -73,7 +73,7 @@ async fn slow() -> DynResult<()>
 
 // This will return an error.
 //
-async fn wrong() -> DynResult<()>
+async fn wrong() -> DynSendResult<()>
 {
 	info!( "spawned wrong." );
 
@@ -84,7 +84,7 @@ async fn wrong() -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

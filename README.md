@@ -185,7 +185,7 @@ Please check out the [contribution guidelines](https://github.com/najamelan/asyn
 
 ### Testing
 
-`cargo test` and `wasm-pack test --firefox --headless -- -Z features=itarget --no-default-features` although the latter requires nightly and doesn't work until https://github.com/rustwasm/wasm-pack/issues/698 is resolved or you patch wasm-pack. You could use `wasm-bindgen-cli`.
+`cargo test` and `rustup run nightly wasm-pack test --firefox --headless -- --features "implementation" --no-default-features`.
 
 
 ### Code of conduct

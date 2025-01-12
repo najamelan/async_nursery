@@ -20,18 +20,18 @@ mod common;
 
 use
 {
-	async_executors :: { AsyncStd                 } ,
-	async_nursery   :: { Nursery, NurseExt        } ,
-	common          :: { DynResult, setup_tracing } ,
-	futures         :: { channel::mpsc, StreamExt } ,
-	futures_timer   :: { Delay                    } ,
-	std             :: { time::Duration           } ,
-	tracing_crate   :: { info                     } ,
+	async_executors :: { AsyncStd                     } ,
+	async_nursery   :: { Nursery, NurseExt            } ,
+	common          :: { DynSendResult, setup_tracing } ,
+	futures         :: { channel::mpsc, StreamExt     } ,
+	futures_timer   :: { Delay                        } ,
+	std             :: { time::Duration               } ,
+	tracing_crate   :: { info                         } ,
 };
 
 
 
-async fn resource_drop( senders: Vec<mpsc::UnboundedSender<()>> ) -> DynResult<()>
+async fn resource_drop( senders: Vec<mpsc::UnboundedSender<()>> ) -> DynSendResult<()>
 {
 	let (nursery, _output) = Nursery::new( AsyncStd );
 	info!( "nursery created" );
@@ -53,7 +53,7 @@ async fn resource_drop( senders: Vec<mpsc::UnboundedSender<()>> ) -> DynResult<(
 
 // This wants to linger around for an entire minute...zzz
 //
-async fn slow( tx: mpsc::UnboundedSender<()> ) -> DynResult<()>
+async fn slow( tx: mpsc::UnboundedSender<()> ) -> DynSendResult<()>
 {
 	info!( "spawned slow" );
 
@@ -68,7 +68,7 @@ async fn slow( tx: mpsc::UnboundedSender<()> ) -> DynResult<()>
 
 #[ async_std::main ]
 //
-async fn main() -> DynResult<()>
+async fn main() -> DynSendResult<()>
 {
 	setup_tracing();
 

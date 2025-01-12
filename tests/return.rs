@@ -16,7 +16,7 @@ use common::{ *, import::* };
 //
 #[ async_std::test ]
 //
-async fn in_method() -> DynResult<()>
+async fn in_method() -> DynSendResult<()>
 {
 	let (nursery, output) = Nursery::new( AsyncStd );
 
@@ -37,7 +37,7 @@ async fn in_method() -> DynResult<()>
 //
 #[test] fn in_method_local() -> DynResult<()>
 {
-	let exec              = TokioCtBuilder::new().build()?;
+	let exec              = TokioCt::new()?;
 	let (nursery, output) = Nursery::new( exec.clone() );
 
 	nursery.nurse( async { 5 + 5 } )?;
@@ -53,7 +53,7 @@ async fn in_method() -> DynResult<()>
 
 
 
-async fn return_error() -> DynResult<()>
+async fn return_error() -> DynSendResult<()>
 {
 	let (nursery, mut output) = Nursery::new( AsyncStd );
 
@@ -68,7 +68,7 @@ async fn return_error() -> DynResult<()>
 }
 
 
-async fn slow() -> DynResult<()>
+async fn slow() -> DynSendResult<()>
 {
 	Delay::new( Duration::from_secs(5) ).await;
 
@@ -76,7 +76,7 @@ async fn slow() -> DynResult<()>
 }
 
 
-async fn wrong() -> DynResult<()>
+async fn wrong() -> DynSendResult<()>
 {
 	Err( "I don't like waiting.".into() )
 }
@@ -87,7 +87,7 @@ async fn wrong() -> DynResult<()>
 //
 #[ async_std::test ]
 //
-async fn early_return_error() -> DynResult<()>
+async fn early_return_error() -> DynSendResult<()>
 {
 	let err = return_error().await;
 
